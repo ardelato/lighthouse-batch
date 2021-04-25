@@ -1,9 +1,18 @@
 #!/usr/bin/env node
 'use strict'
 
+/**
+ * Commander is a Node Package that allows for easy to use command-line argument processing
+ * https://www.npmjs.com/package/commander
+ *
+ * It allows for easier configuration and use of CLI arg flags, arg type definitions, and usage messages
+ */
 const program = require('commander')
 const execute = require('./index')
 
+/**
+ * This is where the "flag" arguments are being set along with the type definitions in some cases
+ */
 program
   .version(require('./package.json').version)
   .option('-s, --sites [sites]', 'a comma delimited list of site urls to analyze with Lighthouse', (str) => str.split(','), [])

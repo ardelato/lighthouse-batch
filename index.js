@@ -1,16 +1,34 @@
 'use strict'
+
+/**
+ * shelljs is Node Package that allows for shell commands to be called through the Nodejs app
+ * https://www.npmjs.com/package/shelljs
+ */
 require('shelljs/global');
+
 const fs = require('fs')
 const path = require('path')
 
+// OUT is the directory for where the reports will be written to
 const OUT = './report/lighthouse'
+
+// REPORT_SUMMARY is name for json file which will hold the overall metrics for all the urls ran
 const REPORT_SUMMARY = 'summary.json'
+
+// Constants for appending the extension types to the reports
 const JSON_EXT = '.report.json'
 const CSV_EXT = '.report.csv'
 const HTML_EXT = '.report.html'
 
+// Since Javascript functions are objects, you can add properties to them as well
 execute.OUT = OUT
 module.exports = execute;
+
+/**
+ * This is the main function that execute lighthouse on all the urls
+ *
+ * @param {Command} options
+ */
 
 function execute(options) {
   log = log.bind(log, options.verbose || false)
@@ -99,6 +117,12 @@ function execute(options) {
   }
 }
 
+/**
+ *
+ *
+ * @param {*} options
+ * @return {*} 
+ */
 function sitesInfo(options) {
   let sites = []
   if (options.file) {
@@ -144,6 +168,13 @@ function sitesInfo(options) {
   })
 }
 
+/**
+ *
+ *
+ * @param {*} options
+ * @param {*} log
+ * @return {*} 
+ */
 function lighthouseScript(options, log) {
   if (options.useGlobal) {
     if (exec('lighthouse --version').code === 0) {
@@ -165,10 +196,25 @@ function lighthouseScript(options, log) {
   return `node ${cliPath}`
 }
 
+/**
+ *
+ *
+ * @param {*} site
+ * @return {*} 
+ */
 function siteName(site) {
   return site.replace(/^https?:\/\//, '').replace(/[\/\?#:\*\$@\!\.]/g, '_')
 }
 
+/**
+ *
+ *
+ * @param {*} filePath
+ * @param {*} summary
+ * @param {*} outcome
+ * @param {*} options
+ * @return {*} 
+ */
 function updateSummary(filePath, summary, outcome, options) {
   if (outcome.code !== 0) {
     summary.score = 0
@@ -182,6 +228,12 @@ function updateSummary(filePath, summary, outcome, options) {
   }
 }
 
+/**
+ *
+ *
+ * @param {*} report
+ * @return {*} 
+ */
 function getAverageScore(report) {
   let categories = report.reportCategories // lighthouse v1,2
   if (report.categories) { // lighthouse v3
@@ -199,6 +251,13 @@ function getAverageScore(report) {
   }
 }
 
+/**
+ *
+ *
+ * @param {*} summary
+ * @param {*} options
+ * @return {*} 
+ */
 function checkBudgets(summary, options) {
   const errors = []
   if (options.score > 0) {
@@ -246,10 +305,22 @@ function checkBudgets(summary, options) {
   return errors.length ? errors : undefined
 }
 
+/**
+ *
+ *
+ * @param {*} v
+ * @param {*} msg
+ */
 function log(v, msg) {
   if (v) console.log(msg)
 }
 
+/**
+ *
+ *
+ * @param {*} score
+ * @return {*} 
+ */
 function toScore(score) {
   return Number(score) * 100
 }
