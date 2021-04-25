@@ -25,18 +25,47 @@ execute.OUT = OUT
 module.exports = execute;
 
 /**
+ * Command Instance specific for Lighthouse
+ * 
+ * Not all these properties are required
+ * @typedef {Object} LighthouseCommand
+ * @property {string[]} sites - list of sites that were passed through cli
+ * @property {string} file - path to a file that has all the sites to process
+ * @property {string} params - a string of flags/parameters to pass to lighthouse cli
+ * @property {boolean} html - whether to generate an html report or not
+ * @property {boolean} csv - whether to generate a csv report or not
+ * @property {string} out - the directory path to where to dump the reports to. Will default to "./report/lighthouse"
+ * @property {number} score - The threshold for what site's score should meet
+ * @property {number} accessibility - The threshold for what site's accessibility score should meet
+ * @property {number} performance - The threshold for what site's performance score should meet
+ * @property {number} best-practices - The threshold for what site's best-practices scores should meet
+ * @property {number} seo - The threshold for what site's seo score should meet
+ * @property {number} pwa - The threshold for what site's pwa score should meet
+ * @property {boolean} fail-fast - Whether to fail as soon as the budget threshold is not met
+ * @property {boolean} use-global - Whether to use the global install of lighthouse or the locally installed one
+ * @property {boolean} verbose - whether to enable verbose logging
+ * @property {boolean} no-report - whether to create the default json reports for each site
+ * @property {boolean} print - whether to print the final summary scores to STDOUT
+ */
+
+
+/**
  * This is the main function that execute lighthouse on all the urls
  *
- * @param {Command} options
+ * 
+ * @param {LighthouseCommand} options Command object that holds all the argument flags for Lighthouse
  */
 
 function execute(options) {
   log = log.bind(log, options.verbose || false)
 
   const out = options.out || OUT
+
   const lhScript = lighthouseScript(options, log)
+
   const summaryPath = path.join(out, REPORT_SUMMARY)
 
+  // This will purge all the reports in the out directory including the directory itself
   try {
     const files = fs.readdirSync(out)
     files.forEach(f => {
@@ -48,9 +77,12 @@ function execute(options) {
     })
   } catch(e) {}
 
+  // This will make the out directory, including the intermediary directories
   mkdir('-p', out)
 
   let budgetErrors = []
+
+  // If the sites flag option was passed, it will check the length of the string array
   const count = options.sites.length
   log(`Lighthouse batch run begin for ${count} site${count > 1 ? 's' : ''}`)
 
@@ -169,21 +201,30 @@ function sitesInfo(options) {
 }
 
 /**
+ * Will return the path to either the globally installed lighthouse node package or the locally installed one
  *
- *
- * @param {*} options
- * @param {*} log
- * @return {*} 
+ * @param {Object} options Command object that holds all the argument flags
+ * @param {consoleLogCB} log
+ * @return {string} lighthouse cli path
  */
 function lighthouseScript(options, log) {
+  // If global flag option was passed, it will try to use the globally installed lighthouse node package
   if (options.useGlobal) {
+    /**
+     * Validates if lighthouse is installed globally by trying to run the shell command `lighthouse --version`
+     *
+     * If the exit code does not return 0 then something failed
+     */
     if (exec('lighthouse --version').code === 0) {
       log('Targeting global install of Lighthouse cli')
+      // If it does return 0, then we just return 'lighthouse' instead of the filepath
       return 'lighthouse'
     } else {
       console.warn('Global Lighthouse install not found, falling back to local one')
     }
   }
+
+  // Otherwise we will try to get the locally installed filepath
   let cliPath = path.resolve(`${__dirname}/node_modules/lighthouse/lighthouse-cli/index.js`)
   if (!fs.existsSync(cliPath)) {
     cliPath = path.resolve(`${__dirname}/../lighthouse/lighthouse-cli/index.js`)
@@ -306,10 +347,10 @@ function checkBudgets(summary, options) {
 }
 
 /**
- *
- *
- * @param {*} v
- * @param {*} msg
+ * A callback wrapper function for console.log 
+ * @callback consoleLogCB
+ * @param {boolean} v
+ * @param {string} msg
  */
 function log(v, msg) {
   if (v) console.log(msg)
