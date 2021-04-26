@@ -2,6 +2,7 @@
   "name": "lighthouse-batch",
   "version": "7.1.0",
   "description": "Generate lighthouse reports for one or more websites",
+  "type": "module",
   "main": "index.js",
   "bin": {
     "lighthouse-batch": "run.js"
