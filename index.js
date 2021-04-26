@@ -124,23 +124,15 @@ function sitesInfo(options) {
 function createIterableSiteObject(siteURL) {
   siteURL = siteURL.trim()
 
-  const origName = siteName(siteURL)
-  let name = origName
+  const name = siteName(siteURL)
 
-  let j = 1
-  while (existingNames[name]) {
-    name = `${origName}_${j}`
-    j++
-  }
-  existingNames[name] = true
-
-  const info = {
+  const site = {
     siteURL,
     name,
-    file: `${name}${JSON_EXT}`
+    jsonFile: `${name}${JSON_EXT}`
   }
 
-  return info
+  return site
 }
 
 function lighthouseScript(log) {
@@ -157,16 +149,8 @@ function lighthouseScript(log) {
   return `node ${cliPath}`
 }
 
-/**
- * Will remove the protocol from the url and will format the url address for proper file name formatting.
- * 
- * Meaning it will replace characters like '/' or '?' from url that may cause issues reading the file name
- *
- * @param {string} site
- * @return {string} file ready site name
- */
-function siteName(site) {
-  return site.replace(/^https?:\/\//, '').replace(/[\/\?#:\*\$@\!\.]/g, '_')
+function siteName(siteURL) {
+  return siteURL.replace(/^https?:\/\//, '').replace(/[\/\?#:\*\$@\!\.]/g, '_')
 }
 
 
