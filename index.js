@@ -1,18 +1,11 @@
 'use strict'
 
-/**
- * shelljs is Node Package that allows for shell commands to be called through the Nodejs app
- * https://www.npmjs.com/package/shelljs
- */
-require('shelljs/global');
+import 'shelljs/global';
+import { readdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
+import { join, resolve } from 'path';
 
-const fs = require('fs')
-const path = require('path')
-
-// OUT is the directory for where the reports will be written to
 const OUT = './report/lighthouse'
 
-// REPORT_SUMMARY is name for json file which will hold the overall metrics for all the urls ran
 const REPORT_SUMMARY = 'summary.json'
 
 // Constants for appending the extension types to the reports
@@ -22,7 +15,7 @@ const HTML_EXT = '.report.html'
 
 // Since Javascript functions are objects, you can add properties to them as well
 execute.OUT = OUT
-module.exports = execute;
+export default execute;
 
 /**
  * Command Instance specific for Lighthouse
@@ -63,14 +56,14 @@ function execute(options) {
 
   const lhScript = lighthouseScript(options, log)
 
-  const summaryPath = path.join(out, REPORT_SUMMARY)
+  const summaryPath = join(out, REPORT_SUMMARY)
 
   // This will purge all the reports in the out directory including the directory itself
   try {
-    const files = fs.readdirSync(out)
+    const files = readdirSync(out)
     files.forEach(f => {
       if (f.endsWith(JSON_EXT) || f.endsWith(HTML_EXT) || f.endsWith(CSV_EXT) || f == REPORT_SUMMARY) {
-        const oldFile = path.join(out, f)
+        const oldFile = join(out, f)
         log(`Removing old report file: ${oldFile}`)
         rm('-f', oldFile)
       }
@@ -94,7 +87,7 @@ function execute(options) {
     const prefix = `${i + 1}/${count}: `
     const htmlOut = options.html ? ' --output html' : ''
     const csvOut = options.csv ? ' --output csv' : ''
-    const filePath = path.join(out, site.file)
+    const filePath = join(out, site.file)
     const customParams = options.params || ''
 
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
@@ -142,7 +135,7 @@ function execute(options) {
   console.log(`Lighthouse batch run end`)
   console.log(`Writing reports summary to ${summaryPath}`)
 
-  fs.writeFileSync(summaryPath, JSON.stringify(reports), 'utf8')
+  writeFileSync(summaryPath, JSON.stringify(reports), 'utf8')
   if (options.print) {
     console.log(`Printing reports summary`)
     console.log(JSON.stringify(reports, null, 2))
@@ -181,7 +174,7 @@ function sitesInfo(options) {
   // If file path was passed then process the file path and add them to the local sites array
   if (options.file) {
     try {
-      const contents = fs.readFileSync(options.file, 'utf8')
+      const contents = readFileSync(options.file, 'utf8')
       sites = contents.trim().split('\n')
     } catch (e) {
       console.error(`Failed to read file ${options.file}, aborting.\n`, e)
@@ -256,10 +249,10 @@ function lighthouseScript(options, log) {
   }
 
   // Otherwise we will try to get the locally installed filepath
-  let cliPath = path.resolve(`${__dirname}/node_modules/lighthouse/lighthouse-cli/index.js`)
-  if (!fs.existsSync(cliPath)) {
-    cliPath = path.resolve(`${__dirname}/../lighthouse/lighthouse-cli/index.js`)
-    if (!fs.existsSync(cliPath)) {
+  let cliPath = resolve(`${__dirname}/node_modules/lighthouse/lighthouse-cli/index.js`)
+  if (!existsSync(cliPath)) {
+    cliPath = resolve(`${__dirname}/../lighthouse/lighthouse-cli/index.js`)
+    if (!existsSync(cliPath)) {
       console.error(`Failed to find Lighthouse CLI, aborting.`)
       process.exit(1)
     }
@@ -304,7 +297,7 @@ function updateSummary(filePath, summary, outcome, options) {
   }
 
   // Parse the JSON Report file
-  const report = JSON.parse(fs.readFileSync(filePath))
+  const report = JSON.parse(readFileSync(filePath))
   
   return {
     ...summary,
