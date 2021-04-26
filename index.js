@@ -81,7 +81,7 @@ function execute(options) {
   mkdir('-p', out)
 
   let budgetErrors = []
-
+  // console.log(options.options)
   // If the sites flag option was passed, it will check the length of the string array
   const count = options.sites.length
   log(`Lighthouse batch run begin for ${count} site${count > 1 ? 's' : ''}`)
