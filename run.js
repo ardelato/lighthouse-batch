@@ -23,7 +23,7 @@ function thresholdValid(threshold){
  */
 program
   .version(require('./package.json').version)
-  .option('-s, --sites [sites]', 'a comma delimited list of site urls to analyze with Lighthouse', (str) => str.split(','))
+  .option('-s, --sites [sites]', 'a comma delimited list of site urls to analyze with Lighthouse', (str) => str.split(','), [])
   .option('-f, --file [path]', 'an input file with a site url per-line to analyze with Lighthouse')
   .option('-p, --params <params>', 'extra parameters to pass to lighthouse cli for each execution e.g. -p "--perf --quiet"')
   .option('-h, --html', 'generate an html report alongside the json report')
