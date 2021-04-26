@@ -1,7 +1,7 @@
 'use strict'
 
 import 'shelljs/global.js';
-import { readdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 
 
@@ -118,37 +118,29 @@ function sitesInfo(options) {
   if (options.sites) {
     sites = sites.concat(options.sites)
   }
+  return sites.map(createIterableSiteObject);
+}
 
-  const existingNames = {}
+function createIterableSiteObject(siteURL) {
+  siteURL = siteURL.trim()
 
-  return sites.map(url => {
-    url = url.trim()
+  const origName = siteName(siteURL)
+  let name = origName
 
-    if (!url.match(/^https?:/)) {
-      if (!url.startsWith('//')) url = `//${url}`
-      url = `https:${url}`
-    }
+  let j = 1
+  while (existingNames[name]) {
+    name = `${origName}_${j}`
+    j++
+  }
+  existingNames[name] = true
 
+  const info = {
+    siteURL,
+    name,
+    file: `${name}${JSON_EXT}`
+  }
 
-    const origName = siteName(url)
-    let name = origName
-
-
-    let j = 1
-    while (existingNames[name]) {
-      name = `${origName}_${j}`
-      j++
-    }
-    existingNames[name] = true
-
-    const info = {
-      url,
-      name,
-      file: `${name}${JSON_EXT}`
-    }
-
-    return info
-  })
+  return info
 }
 
 function lighthouseScript(log) {
