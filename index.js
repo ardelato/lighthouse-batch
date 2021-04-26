@@ -21,22 +21,14 @@ export default function execute(options) {
     if(!existsSync(out)){
       mkdir('-p', out)
     }
-  } catch(e) {}
-  
-  let budgetErrors = []
-  // console.log(options.options)
-  // If the sites flag option was passed, it will check the length of the string array
-  const count = options.sites.length
-  log(`Lighthouse batch run begin for ${count} site${count > 1 ? 's' : ''}`)
+  } catch(e) {
+    throw new Error(e);
+  }
 
-  // Once it processes the passed in urls, it will then execute lighthouse on the well formatted siteInfo objects
   const reports = sitesInfo(options).map((site, i) => {
-    if (budgetErrors.length && options.failFast) {
-      return undefined
-    }
+  
     const prefix = `${i + 1}/${count}: `
-    const htmlOut = options.html ? ' --output html' : ''
-    const csvOut = options.csv ? ' --output csv' : ''
+
     const filePath = join(out, site.file)
     const customParams = options.params || ''
 
@@ -90,15 +82,6 @@ export default function execute(options) {
     console.log(`Printing reports summary`)
     console.log(JSON.stringify(reports, null, 2))
   }
-
-  if (budgetErrors.length) {
-    console.error(`Error: failed to meet budget thresholds`)
-    for (let err of budgetErrors) {
-      console.error(` - ${err}`)
-    }
-    log('Exiting with code 1')
-    process.exit(1)
-  }
 }
 
 /**
@@ -121,7 +104,7 @@ export default function execute(options) {
  */
 function sitesInfo(options) {
   let sites = []
-  // If file path was passed then process the file path and add them to the local sites array
+
   if (options.file) {
     try {
       const contents = readFileSync(options.file, 'utf8')
@@ -132,19 +115,15 @@ function sitesInfo(options) {
       process.exit(1)
     }
   }
-
-  // If a list of urls was passed then add them to the local sites array
   if (options.sites) {
     sites = sites.concat(options.sites)
   }
 
   const existingNames = {}
 
-  // Return an array of site objects
   return sites.map(url => {
     url = url.trim()
 
-    // If the url does start with a protocol (https: || http: ) it will prepend one to it
     if (!url.match(/^https?:/)) {
       if (!url.startsWith('//')) url = `//${url}`
       url = `https:${url}`
@@ -154,8 +133,7 @@ function sitesInfo(options) {
     const origName = siteName(url)
     let name = origName
 
-    // If the same page is being tested multiple times then
-    // give each one an incremented name to avoid collisions
+
     let j = 1
     while (existingNames[name]) {
       name = `${origName}_${j}`
@@ -168,8 +146,7 @@ function sitesInfo(options) {
       name,
       file: `${name}${JSON_EXT}`
     }
-    if (options.html) info.html = `${name}${HTML_EXT}`
-    if (options.csv) info.csv = `${name}${CSV_EXT}`
+
     return info
   })
 }
