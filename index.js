@@ -4,43 +4,11 @@ import 'shelljs/global.js';
 import { readdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 
-export const OUT = './report/lighthouse'
 
 const REPORT_SUMMARY = 'summary.json'
-
 const JSON_EXT = '.report.json'
 
-/**
- * Command Instance specific for Lighthouse
- * 
- * Not all these properties are required
- * @typedef {Object} LighthouseCommand
- * @property {string[]} sites - list of sites that were passed through cli
- * @property {string} file - path to a file that has all the sites to process
- * @property {string} params - a string of flags/parameters to pass to lighthouse cli
- * @property {boolean} html - whether to generate an html report or not
- * @property {boolean} csv - whether to generate a csv report or not
- * @property {string} out - the directory path to where to dump the reports to. Will default to "./report/lighthouse"
- * @property {number} score - The threshold for what site's score should meet
- * @property {number} accessibility - The threshold for what site's accessibility score should meet
- * @property {number} performance - The threshold for what site's performance score should meet
- * @property {number} bestPractices - The threshold for what site's best-practices scores should meet
- * @property {number} seo - The threshold for what site's seo score should meet
- * @property {number} pwa - The threshold for what site's pwa score should meet
- * @property {boolean} failFast - Whether to fail as soon as the budget threshold is not met
- * @property {boolean} useGlobal - Whether to use the global install of lighthouse or the locally installed one
- * @property {boolean} verbose - whether to enable verbose logging
- * @property {boolean} report - whether to create the default json reports for each site
- * @property {boolean} print - whether to print the final summary scores to STDOUT
- */
-
-
-/**
- * This is the main function that execute lighthouse on all the urls
- *
- * 
- * @param {LighthouseCommand} options Command object that holds all the argument flags for Lighthouse
- */
+export const OUT = './report/lighthouse'
 
 export default function execute(options) {
   log = log.bind(log, options.verbose || false)
@@ -49,21 +17,12 @@ export default function execute(options) {
   const lhScript = lighthouseScript(log)
   const summaryPath = join(out, REPORT_SUMMARY)
 
-  // This will purge all the reports in the out directory including the directory itself
   try {
-    const files = readdirSync(out)
-    files.forEach(f => {
-      if (f.endsWith(JSON_EXT) || f.endsWith(HTML_EXT) || f.endsWith(CSV_EXT) || f == REPORT_SUMMARY) {
-        const oldFile = join(out, f)
-        log(`Removing old report file: ${oldFile}`)
-        rm('-f', oldFile)
-      }
-    })
+    if(!existsSync(out)){
+      mkdir('-p', out)
+    }
   } catch(e) {}
-
-  // This will make the out directory, including the intermediary directories
-  mkdir('-p', out)
-
+  
   let budgetErrors = []
   // console.log(options.options)
   // If the sites flag option was passed, it will check the length of the string array
