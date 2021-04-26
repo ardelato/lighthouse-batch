@@ -1,19 +1,14 @@
 'use strict'
 
-import 'shelljs/global';
+import 'shelljs/global.js';
 import { readdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
-import { join, resolve } from 'path';
+import { join, resolve, dirname } from 'path';
 
-const OUT = './report/lighthouse'
+export const OUT = './report/lighthouse'
 
 const REPORT_SUMMARY = 'summary.json'
 
 const JSON_EXT = '.report.json'
-
-
-// Since Javascript functions are objects, you can add properties to them as well
-execute.OUT = OUT
-export default execute;
 
 /**
  * Command Instance specific for Lighthouse
@@ -47,13 +42,11 @@ export default execute;
  * @param {LighthouseCommand} options Command object that holds all the argument flags for Lighthouse
  */
 
-function execute(options) {
+export default function execute(options) {
   log = log.bind(log, options.verbose || false)
 
   const out = options.out || OUT
-
-  const lhScript = lighthouseScript(options, log)
-
+  const lhScript = lighthouseScript(log)
   const summaryPath = join(out, REPORT_SUMMARY)
 
   // This will purge all the reports in the out directory including the directory itself
@@ -222,31 +215,8 @@ function sitesInfo(options) {
   })
 }
 
-/**
- * Will return the path to either the globally installed lighthouse node package or the locally installed one
- *
- * @param {LighthouseCommand} options Command object that holds all the argument flags
- * @param {consoleLogCB} log
- * @return {string} lighthouse cli path
- */
-function lighthouseScript(options, log) {
-  // If global flag option was passed, it will try to use the globally installed lighthouse node package
-  if (options.useGlobal) {
-    /**
-     * Validates if lighthouse is installed globally by trying to run the shell command `lighthouse --version`
-     *
-     * If the exit code does not return 0 then something failed
-     */
-    if (exec('lighthouse --version').code === 0) {
-      log('Targeting global install of Lighthouse cli')
-      // If it does return 0, then we just return 'lighthouse' instead of the filepath
-      return 'lighthouse'
-    } else {
-      console.warn('Global Lighthouse install not found, falling back to local one')
-    }
-  }
-
-  // Otherwise we will try to get the locally installed filepath
+function lighthouseScript(log) {
+  const __dirname = dirname('.');
   let cliPath = resolve(`${__dirname}/node_modules/lighthouse/lighthouse-cli/index.js`)
   if (!existsSync(cliPath)) {
     cliPath = resolve(`${__dirname}/../lighthouse/lighthouse-cli/index.js`)
