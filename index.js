@@ -8,10 +8,8 @@ const OUT = './report/lighthouse'
 
 const REPORT_SUMMARY = 'summary.json'
 
-// Constants for appending the extension types to the reports
 const JSON_EXT = '.report.json'
-const CSV_EXT = '.report.csv'
-const HTML_EXT = '.report.html'
+
 
 // Since Javascript functions are objects, you can add properties to them as well
 execute.OUT = OUT
