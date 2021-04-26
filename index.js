@@ -26,10 +26,7 @@ export default function execute(options) {
   }
 
   const reports = sitesInfo(options).map((site, i) => {
-  
-    const prefix = `${i + 1}/${count}: `
-
-    const filePath = join(out, site.file)
+    const filePath = join(out, site.jsonFile)
     const customParams = options.params || ''
 
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
@@ -38,9 +35,9 @@ export default function execute(options) {
     const outputPath = (options.html || options.csv) ? filePath.slice(0, -JSON_EXT.length) : filePath
 
     // Creating the lighthouse cli options string
-    const cmd = `"${site.url}" --output json${htmlOut+csvOut} --output-path "${outputPath}" ${chromeFlags} ${customParams}`
+    const cmd = `"${site.siteURL}" --output json --output-path "${outputPath}" ${chromeFlags} ${customParams}`
 
-    log(`${prefix}Lighthouse analyzing '${site.url}'`)
+    log(`Lighthouse analyzing '${site.siteURL}'`)
     log(cmd)
 
     // Now executing lighthouse cli
@@ -49,25 +46,13 @@ export default function execute(options) {
     // Once the report is done, add it to the summary json
     const summary = updateSummary(filePath, site, outcome, options)
 
-    if (summary.error) console.warn(`${prefix}Lighthouse analysis FAILED for ${summary.url}`)
-    else log(`${prefix}Lighthouse analysis of '${summary.url}' complete with score ${summary.score}`)
+    if (summary.error) console.warn(`Lighthouse analysis FAILED for ${summary.siteURL}`)
+    else log(`Lighthouse analysis of '${summary.siteURL}' complete with score ${summary.score}`)
 
     // Remove JSON report if --no-report flag was set
     if (options.report === false) {
       log(`Removing generated report file '${filePath}'`)
       rm(filePath)
-    }
-
-    const errors = checkBudgets(summary, options)
-    if (errors) {
-      const other = summary.errors
-      summary.errors = {
-        budget: errors
-      }
-      if (other) {
-        summary.errors.other = other
-      }
-      budgetErrors = budgetErrors.concat(errors)
     }
 
     return summary
@@ -212,60 +197,6 @@ function getAverageScore(report) {
     score: Number((total / categories.length).toFixed(2)),
     detail
   }
-}
-
-/**
- *
- *
- * @param {{summary: siteInfo, score: number, detail: Object }} summary
- * @param {LighthouseCommand} options
- * @return {*} 
- */
-function checkBudgets(summary, options) {
-  const errors = []
-  if (options.score > 0) {
-    const score = toScore(summary.score)
-    if (score < options.score) {
-      errors.push(`average score ${score} < ${options.score} for ${summary.url}`)
-    }
-  }
-
-  if (options.accessibility > 0) {
-    const score = toScore(summary.detail.accessibility)
-    if (score < options.accessibility) {
-      errors.push(`accessibility score ${score} < ${options.accessibility} for ${summary.url}`)
-    }
-  }
-
-  if (options.performance > 0) {
-    const score = toScore(summary.detail.performance)
-    if (score < options.performance) {
-      errors.push(`performance score ${score} < ${options.performance} for ${summary.url}`)
-    }
-  }
-
-  if (options.bestPractices > 0) {
-    const score = toScore(summary.detail['best-practices'])
-    if (score < options.bestPractices) {
-      errors.push(`best practices score ${score} < ${options.bestPractices} for ${summary.url}`)
-    }
-  }
-
-  if (options.seo > 0) {
-    const score = toScore(summary.detail.seo)
-    if (score < options.seo) {
-      errors.push(`seo score ${score} < ${options.seo} for site ${summary.url}`)
-    }
-  }
-
-  if (options.pwa > 0) {
-    const score = toScore(summary.detail.pwa)
-    if (score < options.pwa) {
-      errors.push(`pwa score ${score} < ${options.pwa} for site ${summary.url}`)
-    }
-  }
-
-  return errors.length ? errors : undefined
 }
 
 /**
