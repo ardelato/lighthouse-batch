@@ -17,8 +17,8 @@
     "url": "https://github.com/mikestead/lighthouse-batch.git"
   },
   "dependencies": {
-    "commander": "^2.9.0",
-    "lighthouse": "^7.0.1",
+    "commander": "^7.2.0",
+    "lighthouse": "^7.3.0",
     "shelljs": "^0.8.4"
   }
 }

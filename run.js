@@ -10,6 +10,15 @@
 const program = require('commander')
 const execute = require('./index')
 
+function thresholdValid(threshold){
+  console.log("Running Threshold with value: "+threshold)
+  console.log(typeof(threshold))
+  if(threshold < 1 || threshold > 100){
+    console.log("Threshold passed")
+    exit('Not a number.');
+  }
+}
+
 /**
  * This is where the "flag" arguments are being set along with the type definitions in some cases
  */
@@ -21,7 +30,7 @@ program
   .option('-h, --html', 'generate an html report alongside the json report')
   .option('--csv', 'generate a csv report alongside the json report')
   .option('-o, --out [out]', `the output folder to place reports, defaults to '${execute.OUT}'`)
-  .option('--score <threshold>', `average score for each site to meet (1-100)`, Number)
+  .option('--score <threshold>', `average score for each site to meet (1-100)`, thresholdValid)
   .option('--accessibility <threshold>', `accessibility score for each site to meet (1-100)`, Number)
   .option('--performance <threshold>', `performance score for each site to meet (1-100)`, Number)
   .option('--best-practices <threshold>', `best practice score for each site to meet (1-100)`, Number)

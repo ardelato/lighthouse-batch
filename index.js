@@ -44,7 +44,7 @@ module.exports = execute;
  * @property {boolean} failFast - Whether to fail as soon as the budget threshold is not met
  * @property {boolean} useGlobal - Whether to use the global install of lighthouse or the locally installed one
  * @property {boolean} verbose - whether to enable verbose logging
- * @property {boolean} noReport - whether to create the default json reports for each site
+ * @property {boolean} report - whether to create the default json reports for each site
  * @property {boolean} print - whether to print the final summary scores to STDOUT
  */
 
@@ -87,7 +87,6 @@ function execute(options) {
   log(`Lighthouse batch run begin for ${count} site${count > 1 ? 's' : ''}`)
 
   // Once it processes the passed in urls, it will then execute lighthouse on the well formatted siteInfo objects
-  console.log(options.options);
   const reports = sitesInfo(options).map((site, i) => {
     if (budgetErrors.length && options.failFast) {
       return undefined
@@ -112,11 +111,13 @@ function execute(options) {
     // Now executing lighthouse cli
     const outcome = exec(`${lhScript} ${cmd}`)
 
+    // Once the report is done, add it to the summary json
     const summary = updateSummary(filePath, site, outcome, options)
 
     if (summary.error) console.warn(`${prefix}Lighthouse analysis FAILED for ${summary.url}`)
     else log(`${prefix}Lighthouse analysis of '${summary.url}' complete with score ${summary.score}`)
 
+    // Remove JSON report if --no-report flag was set
     if (options.report === false) {
       log(`Removing generated report file '${filePath}'`)
       rm(filePath)
@@ -343,8 +344,8 @@ function getAverageScore(report) {
 /**
  *
  *
- * @param {*} summary
- * @param {*} options
+ * @param {{summary: siteInfo, score: number, detail: Object }} summary
+ * @param {LighthouseCommand} options
  * @return {*} 
  */
 function checkBudgets(summary, options) {
@@ -404,11 +405,15 @@ function log(v, msg) {
   if (v) console.log(msg)
 }
 
+
 /**
+ * @todo should rename this function to represent more what it is doing
+ */
+/**
+ * Will return a whole integer instead of a float
  *
- *
- * @param {*} score
- * @return {*} 
+ * @param {number} score
+ * @return {number} 
  */
 function toScore(score) {
   return Number(score) * 100
