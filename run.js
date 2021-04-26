@@ -1,9 +1,26 @@
 #!/usr/bin/env node
 'use strict'
 
+/**
+ * Commander is a Node Package that allows for easy to use command-line argument processing
+ * https://www.npmjs.com/package/commander
+ *
+ * It allows for easier configuration and use of CLI arg flags, arg type definitions, and usage messages
+ */
 const program = require('commander')
 const execute = require('./index')
 
+function thresholdValid(threshold){
+  const parsedValue = parseInt(threshold)
+  if(threshold < 1 || threshold > 100 || isNaN(parsedValue)){
+    throw new program.InvalidOptionArgumentError("Not a valid number between 1-100")
+  }
+  return parsedValue
+}
+
+/**
+ * This is where the "flag" arguments are being set along with the type definitions in some cases
+ */
 program
   .version(require('./package.json').version)
   .option('-s, --sites [sites]', 'a comma delimited list of site urls to analyze with Lighthouse', (str) => str.split(','), [])
@@ -12,12 +29,12 @@ program
   .option('-h, --html', 'generate an html report alongside the json report')
   .option('--csv', 'generate a csv report alongside the json report')
   .option('-o, --out [out]', `the output folder to place reports, defaults to '${execute.OUT}'`)
-  .option('--score <threshold>', `average score for each site to meet (1-100)`, Number)
-  .option('--accessibility <threshold>', `accessibility score for each site to meet (1-100)`, Number)
-  .option('--performance <threshold>', `performance score for each site to meet (1-100)`, Number)
-  .option('--best-practices <threshold>', `best practice score for each site to meet (1-100)`, Number)
-  .option('--seo <threshold>', `seo score for each site to meet (1-100)`, Number)
-  .option('--pwa <threshold>', `pwa score for each site to meet (1-100)`, Number)
+  .option('--score <threshold>', `average score for each site to meet (1-100)`, thresholdValid)
+  .option('--accessibility <threshold>', `accessibility score for each site to meet (1-100)`, thresholdValid)
+  .option('--performance <threshold>', `performance score for each site to meet (1-100)`, thresholdValid)
+  .option('--best-practices <threshold>', `best practice score for each site to meet (1-100)`, thresholdValid)
+  .option('--seo <threshold>', `seo score for each site to meet (1-100)`, thresholdValid)
+  .option('--pwa <threshold>', `pwa score for each site to meet (1-100)`, thresholdValid)
   .option('--fail-fast', `fail as soon as a budget threshold is not met`)
   .option('-g, --use-global', 'use a global lighthouse install instead of the dependency version')
   .option('-v, --verbose', 'enable verbose logging')
@@ -25,4 +42,4 @@ program
   .option('--print', 'print the final summary to stdout')
   .parse(process.argv)
 
-execute(program)
+execute(program.opts())

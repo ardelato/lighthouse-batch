@@ -1,24 +1,71 @@
 'use strict'
+
+/**
+ * shelljs is Node Package that allows for shell commands to be called through the Nodejs app
+ * https://www.npmjs.com/package/shelljs
+ */
 require('shelljs/global');
+
 const fs = require('fs')
 const path = require('path')
 
+// OUT is the directory for where the reports will be written to
 const OUT = './report/lighthouse'
+
+// REPORT_SUMMARY is name for json file which will hold the overall metrics for all the urls ran
 const REPORT_SUMMARY = 'summary.json'
+
+// Constants for appending the extension types to the reports
 const JSON_EXT = '.report.json'
 const CSV_EXT = '.report.csv'
 const HTML_EXT = '.report.html'
 
+// Since Javascript functions are objects, you can add properties to them as well
 execute.OUT = OUT
 module.exports = execute;
+
+/**
+ * Command Instance specific for Lighthouse
+ * 
+ * Not all these properties are required
+ * @typedef {Object} LighthouseCommand
+ * @property {string[]} sites - list of sites that were passed through cli
+ * @property {string} file - path to a file that has all the sites to process
+ * @property {string} params - a string of flags/parameters to pass to lighthouse cli
+ * @property {boolean} html - whether to generate an html report or not
+ * @property {boolean} csv - whether to generate a csv report or not
+ * @property {string} out - the directory path to where to dump the reports to. Will default to "./report/lighthouse"
+ * @property {number} score - The threshold for what site's score should meet
+ * @property {number} accessibility - The threshold for what site's accessibility score should meet
+ * @property {number} performance - The threshold for what site's performance score should meet
+ * @property {number} bestPractices - The threshold for what site's best-practices scores should meet
+ * @property {number} seo - The threshold for what site's seo score should meet
+ * @property {number} pwa - The threshold for what site's pwa score should meet
+ * @property {boolean} failFast - Whether to fail as soon as the budget threshold is not met
+ * @property {boolean} useGlobal - Whether to use the global install of lighthouse or the locally installed one
+ * @property {boolean} verbose - whether to enable verbose logging
+ * @property {boolean} report - whether to create the default json reports for each site
+ * @property {boolean} print - whether to print the final summary scores to STDOUT
+ */
+
+
+/**
+ * This is the main function that execute lighthouse on all the urls
+ *
+ * 
+ * @param {LighthouseCommand} options Command object that holds all the argument flags for Lighthouse
+ */
 
 function execute(options) {
   log = log.bind(log, options.verbose || false)
 
   const out = options.out || OUT
+
   const lhScript = lighthouseScript(options, log)
+
   const summaryPath = path.join(out, REPORT_SUMMARY)
 
+  // This will purge all the reports in the out directory including the directory itself
   try {
     const files = fs.readdirSync(out)
     files.forEach(f => {
@@ -30,12 +77,16 @@ function execute(options) {
     })
   } catch(e) {}
 
+  // This will make the out directory, including the intermediary directories
   mkdir('-p', out)
 
   let budgetErrors = []
+  // console.log(options.options)
+  // If the sites flag option was passed, it will check the length of the string array
   const count = options.sites.length
   log(`Lighthouse batch run begin for ${count} site${count > 1 ? 's' : ''}`)
 
+  // Once it processes the passed in urls, it will then execute lighthouse on the well formatted siteInfo objects
   const reports = sitesInfo(options).map((site, i) => {
     if (budgetErrors.length && options.failFast) {
       return undefined
@@ -45,20 +96,28 @@ function execute(options) {
     const csvOut = options.csv ? ' --output csv' : ''
     const filePath = path.join(out, site.file)
     const customParams = options.params || ''
+
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
     // if gen'ing (html|csv)+json reports, ext '.report.json' is added by lighthouse cli automatically,
     // so here we try and keep the file names consistent by stripping to avoid duplication
     const outputPath = (options.html || options.csv) ? filePath.slice(0, -JSON_EXT.length) : filePath
+
+    // Creating the lighthouse cli options string
     const cmd = `"${site.url}" --output json${htmlOut+csvOut} --output-path "${outputPath}" ${chromeFlags} ${customParams}`
 
     log(`${prefix}Lighthouse analyzing '${site.url}'`)
     log(cmd)
+
+    // Now executing lighthouse cli
     const outcome = exec(`${lhScript} ${cmd}`)
+
+    // Once the report is done, add it to the summary json
     const summary = updateSummary(filePath, site, outcome, options)
 
     if (summary.error) console.warn(`${prefix}Lighthouse analysis FAILED for ${summary.url}`)
     else log(`${prefix}Lighthouse analysis of '${summary.url}' complete with score ${summary.score}`)
 
+    // Remove JSON report if --no-report flag was set
     if (options.report === false) {
       log(`Removing generated report file '${filePath}'`)
       rm(filePath)
@@ -99,8 +158,27 @@ function execute(options) {
   }
 }
 
+/**
+ * Object for a processed url
+ * 
+ * @typedef {Object} siteInfo
+ * @property {string} url - The url of the site
+ * @property {string} name - The file ready name of the url site
+ * @property {string} file - The file name for the json report
+ * @property {(string | undefined)} html - The file name for the html report if the html flag was passed
+ * @property {(string | undefined)} csv - The file name for the csv report if the csv flag was passed
+ */
+
+
+/**
+ * Will return an array of urls that have been formatted with http prefixes
+ *
+ * @param {LighthouseCommand} options
+ * @return {siteInfo[]}
+ */
 function sitesInfo(options) {
   let sites = []
+  // If file path was passed then process the file path and add them to the local sites array
   if (options.file) {
     try {
       const contents = fs.readFileSync(options.file, 'utf8')
@@ -111,20 +189,29 @@ function sitesInfo(options) {
       process.exit(1)
     }
   }
+
+  // If a list of urls was passed then add them to the local sites array
   if (options.sites) {
     sites = sites.concat(options.sites)
   }
+
   const existingNames = {}
+
+  // Return an array of site objects
   return sites.map(url => {
     url = url.trim()
+
+    // If the url does start with a protocol (https: || http: ) it will prepend one to it
     if (!url.match(/^https?:/)) {
       if (!url.startsWith('//')) url = `//${url}`
       url = `https:${url}`
     }
+
+
     const origName = siteName(url)
     let name = origName
 
-    // if the same page is being tested multiple times then
+    // If the same page is being tested multiple times then
     // give each one an incremented name to avoid collisions
     let j = 1
     while (existingNames[name]) {
@@ -144,15 +231,31 @@ function sitesInfo(options) {
   })
 }
 
+/**
+ * Will return the path to either the globally installed lighthouse node package or the locally installed one
+ *
+ * @param {LighthouseCommand} options Command object that holds all the argument flags
+ * @param {consoleLogCB} log
+ * @return {string} lighthouse cli path
+ */
 function lighthouseScript(options, log) {
+  // If global flag option was passed, it will try to use the globally installed lighthouse node package
   if (options.useGlobal) {
+    /**
+     * Validates if lighthouse is installed globally by trying to run the shell command `lighthouse --version`
+     *
+     * If the exit code does not return 0 then something failed
+     */
     if (exec('lighthouse --version').code === 0) {
       log('Targeting global install of Lighthouse cli')
+      // If it does return 0, then we just return 'lighthouse' instead of the filepath
       return 'lighthouse'
     } else {
       console.warn('Global Lighthouse install not found, falling back to local one')
     }
   }
+
+  // Otherwise we will try to get the locally installed filepath
   let cliPath = path.resolve(`${__dirname}/node_modules/lighthouse/lighthouse-cli/index.js`)
   if (!fs.existsSync(cliPath)) {
     cliPath = path.resolve(`${__dirname}/../lighthouse/lighthouse-cli/index.js`)
@@ -165,24 +268,63 @@ function lighthouseScript(options, log) {
   return `node ${cliPath}`
 }
 
+/**
+ * Will remove the protocol from the url and will format the url address for proper file name formatting.
+ * 
+ * Meaning it will replace characters like '/' or '?' from url that may cause issues reading the file name
+ *
+ * @param {string} site
+ * @return {string} file ready site name
+ */
 function siteName(site) {
   return site.replace(/^https?:\/\//, '').replace(/[\/\?#:\*\$@\!\.]/g, '_')
 }
 
+
+/**
+ * @todo remove unused options parameter
+ * @todo probably should create a flag for running this function
+ */
+/**
+ * Will update the siteInfo Object by appending a score and error message propert if it fails or returning the ongoing JSON object of siteInfo scores
+ *
+ * @param {string} filePath
+ * @param {siteInfo} summary - current site object
+ * @param {{code: number,stdout:Object, stderr: Object}} outcome
+ * @param {LighthouseCommand} options
+ * @return { {summary: siteInfo, score: number, detail: Object } }
+ */
 function updateSummary(filePath, summary, outcome, options) {
+
+  // If lighthouse cli exits with non-zero exit code then it failed to audit the page
   if (outcome.code !== 0) {
     summary.score = 0
     summary.error = outcome.stderr
     return summary
   }
+
+  // Parse the JSON Report file
   const report = JSON.parse(fs.readFileSync(filePath))
+  
   return {
     ...summary,
     ...getAverageScore(report)
   }
 }
 
+/**
+ * @todo update getAverageScore to get average score for each category for n times ran
+ */
+/**
+ *
+ *
+ * @param {Object} report
+ * @return {{score: number, detail: Object}} returns a JSON object that has average score of the category scores while have a detail JSON object for each category score
+ */
 function getAverageScore(report) {
+  /**
+   * @todo remove reportCategories
+   */
   let categories = report.reportCategories // lighthouse v1,2
   if (report.categories) { // lighthouse v3
     categories = Object.values(report.categories)
@@ -199,6 +341,13 @@ function getAverageScore(report) {
   }
 }
 
+/**
+ *
+ *
+ * @param {{summary: siteInfo, score: number, detail: Object }} summary
+ * @param {LighthouseCommand} options
+ * @return {*} 
+ */
 function checkBudgets(summary, options) {
   const errors = []
   if (options.score > 0) {
@@ -246,10 +395,26 @@ function checkBudgets(summary, options) {
   return errors.length ? errors : undefined
 }
 
+/**
+ * A callback wrapper function for console.log 
+ * @callback consoleLogCB
+ * @param {boolean} v
+ * @param {string} msg
+ */
 function log(v, msg) {
   if (v) console.log(msg)
 }
 
+
+/**
+ * @todo should rename this function to represent more what it is doing
+ */
+/**
+ * Will return a whole integer instead of a float
+ *
+ * @param {number} score
+ * @return {number} 
+ */
 function toScore(score) {
   return Number(score) * 100
 }
