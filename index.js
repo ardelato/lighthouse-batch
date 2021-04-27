@@ -32,6 +32,7 @@ function sitesInfo(options) {
     }
   }
   if (options.sites) {
+    console.log(options.sites)
     sites = sites.concat(options.sites)
   }
   return sites.map(createIterableSiteObject);
