@@ -4,7 +4,7 @@ import 'shelljs/global.js';
 import { readFileSync, existsSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 
-const JSON_EXT = '.report.json'
+const JSON_EXT = '_report.json'
 
 export default function execute(options) {
   log = log.bind(log, options.verbose || false)
@@ -38,42 +38,42 @@ function sitesInfo(options) {
 
 
 
-function createIterableSiteObject(siteURL) {
-  siteURL = siteURL.trim()
+function createIterableSiteObject(url) {
+  url = url.trim()
 
-  const name = siteName(siteURL)
+  const name = siteName(url)
 
   const site = {
-    siteURL,
-    name,
-    jsonFile: `${name}${JSON_EXT}`
+    url,
+    name
   }
 
   return site
 }
 
-function siteName(siteURL) {
-  return siteURL.replace(/(?:^https?:\/\/)(?:www\.)?(?<domain>[a-z0-9\-\.]+)(?:\.[a-z\.]+)(?<path>[\/]?.*)/,'$<domain>$<path>').replace(/[\/\?#:\*\$@\!\.\+]/g, '-')
+function siteName(url) {
+  return url.replace(/(?:^https?:\/\/)(?:www\.)?(?<domain>[a-z0-9\-\.]+)(?:\.[a-z\.]+)(?<path>[\/]?.*)/,'$<domain>$<path>').replace(/[\/\?#:\*\$@\!\.\+]/g, '-')
 }
 
 function generateReport(site,options,out){
-
-    const filePath = join(out, site.jsonFile)
     const customParams = options.params || ''
-
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
-  
-    const outputPath = filePath
-
-    const cmd = `"${site.siteURL}" --output json --output-path "${outputPath}" ${chromeFlags} ${customParams}`
-
-    log(`Lighthouse analyzing '${site.siteURL}'`)
-    log(cmd)
-
     const lhScript = lighthouseScript(log)
-    const outcome = exec(`${lhScript} ${cmd}`)
 
-    outcome.code === -1 ? log(`Lighthouse analysis FAILED for ${site.siteURL}`) : log(`Lighthouse analysis of '${site.siteURL}' complete`)
+    let cmd = `"${site.url}" --output json ${chromeFlags} ${customParams}`
+
+    log(`Lighthouse analyzing '${site.name}'...\n`)
+
+    if(options.times){
+      for(let i = 0;i < options.times;i++){
+        console.log(`Run ${i+1} out of ${options.times}`)
+        let fileName = `${site.name}_run${i+1}${JSON_EXT}`
+        let filePath = join(out,fileName)
+
+        let outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
+        outcome.code === -1 ? log(`Lighthouse analysis FAILED for ${site.url}`) : log(`Lighthouse analysis of '${site.name}' complete\n`)
+      }
+    }
 }
 
 function lighthouseScript(log) {
