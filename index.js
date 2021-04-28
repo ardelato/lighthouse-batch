@@ -1,7 +1,7 @@
 'use strict'
 
 import 'shelljs/global.js';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, appendFileSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 
 const JSON_EXT = '_report.json'
@@ -12,18 +12,33 @@ export default function execute(options) {
   let out = options.out || './report/lighthouse/'
   makeReportDirectory(out)
 
-  sitesInfo(options).map((site) => generateReport(site,options,out))
+  sitesInfo(options,out).map((site) => generateReport(site,options,out))
 
   console.log(`Lighthouse batch run end`)
 }
 
-function sitesInfo(options) {
-  let sites = []
+function sitesInfo(options,out) {
+  let toBeProcessedSites = []
+  let processedSites = []
+  let filePath = join(out,'processedSites.txt')
+
+  try {
+    if(existsSync(filePath)){
+      processedSites = readFileSync(filePath,'utf8').split('\n')
+    }
+    else{
+      touch(filePath)
+    }
+  } catch (err) {
+    console.error(`Failed to check for existing processed sites file, aborting.\n`, e)
+    log('Exiting with code 1')
+    process.exit(1)
+  }
 
   if (options.file) {
     try {
-      const contents = readFileSync(options.file, 'utf8')
-      sites = contents.trim().split('\n')
+      let sites = readFileSync(options.file, 'utf8').trim().split('\n')
+      toBeProcessedSites = sites.filter(site => processedSites.indexOf(site) === -1);
     } catch (e) {
       console.error(`Failed to read file ${options.file}, aborting.\n`, e)
       log('Exiting with code 1')
@@ -31,11 +46,10 @@ function sitesInfo(options) {
     }
   }
   if (options.sites) {
-    sites = sites.concat(options.sites)
+    toBeProcessedSites = toBeProcessedSites.concat(options.sites)
   }
-  return sites.map(createIterableSiteObject);
+  return toBeProcessedSites.map(createIterableSiteObject);
 }
-
 
 
 function createIterableSiteObject(url) {
@@ -72,6 +86,8 @@ function generateReport(site,options,out){
       let outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
       outcome.code === -1 ? log(`Lighthouse analysis FAILED for ${site.url}`) : log(`Lighthouse analysis of '${site.name}' complete\n`)
     }
+    let processedSitesFilePath = join(out,'processedSites.txt')
+    appendFileSync(processedSitesFilePath,`${site.url}\n`)
 }
 
 function lighthouseScript(log) {
