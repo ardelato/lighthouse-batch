@@ -60,19 +60,17 @@ function generateReport(site,options,out){
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
     const lhScript = lighthouseScript(log)
 
-    let cmd = `"${site.url}" --output json ${chromeFlags} ${customParams}`
+    let cmd = `"${site.url}" --output json --quiet ${chromeFlags} ${customParams}`
 
     log(`Lighthouse analyzing '${site.name}'...\n`)
 
-    if(options.times){
-      for(let i = 0;i < options.times;i++){
-        console.log(`Run ${i+1} out of ${options.times}`)
-        let fileName = `${site.name}_run${i+1}${JSON_EXT}`
-        let filePath = join(out,fileName)
+    for(let i = 0;i < options.times;i++){
+      console.log(`Run ${i+1} out of ${options.times}`)
+      let fileName = `${site.name}_run${i+1}${JSON_EXT}`
+      let filePath = join(out,fileName)
 
-        let outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
-        outcome.code === -1 ? log(`Lighthouse analysis FAILED for ${site.url}`) : log(`Lighthouse analysis of '${site.name}' complete\n`)
-      }
+      let outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
+      outcome.code === -1 ? log(`Lighthouse analysis FAILED for ${site.url}`) : log(`Lighthouse analysis of '${site.name}' complete\n`)
     }
 }
 
