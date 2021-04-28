@@ -4,7 +4,6 @@ import 'shelljs/global.js';
 import { readFileSync, existsSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 
-
 const JSON_EXT = '.report.json'
 
 export default function execute(options) {
@@ -99,12 +98,6 @@ function makeReportDirectory(out){
   }
 }
 
-/**
- * A callback wrapper function for console.log 
- * @callback consoleLogCB
- * @param {boolean} v
- * @param {string} msg
- */
 function log(v, msg) {
   if (v) console.log(msg)
 }
