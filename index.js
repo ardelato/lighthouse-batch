@@ -36,6 +36,8 @@ function sitesInfo(options) {
   return sites.map(createIterableSiteObject);
 }
 
+
+
 function createIterableSiteObject(siteURL) {
   siteURL = siteURL.trim()
 
@@ -48,6 +50,10 @@ function createIterableSiteObject(siteURL) {
   }
 
   return site
+}
+
+function siteName(siteURL) {
+  return siteURL.replace(/(?:^https?:\/\/)(?:www\.)?(?<domain>[a-z0-9\-\.]+)(?:\.[a-z\.]+)(?<path>[\/]?.*)/,'$<domain>$<path>').replace(/[\/\?#:\*\$@\!\.\+]/g, '-')
 }
 
 function generateReport(site,options,out){
@@ -82,10 +88,6 @@ function lighthouseScript(log) {
   }
   log(`Targeting local Lighthouse cli at '${cliPath}'`)
   return `node ${cliPath}`
-}
-
-function siteName(siteURL) {
-  return siteURL.replace(/^https?:\/\//, '').replace(/[\/\?#:\*\$@\!\.]/g, '_')
 }
 
 function makeReportDirectory(out){
