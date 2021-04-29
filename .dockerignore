@@ -1,0 +1,8 @@
+/report
+node_modules
+/npm-debug.log
+/.DS_Store
+.*
+Dockerfile
+LICENSE
+*.md
