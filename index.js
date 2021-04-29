@@ -76,15 +76,20 @@ function generateReport(site,options,out){
 
     let cmd = `"${site.url}" --output json --quiet ${chromeFlags} ${customParams}`
 
-    log(`Lighthouse analyzing '${site.name}'...\n`)
+    log(`Lighthouse analyzing '${site.name}' ...\n`)
 
     for(let i = 0;i < options.times;i++){
-      console.log(`Run ${i+1} out of ${options.times}`)
+      log(`Run ${i+1}/${options.times} for '${site.name}'`)
       let fileName = `${site.name}_run${i+1}${JSON_EXT}`
       let filePath = join(out,fileName)
 
       let outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
-      outcome.code === -1 ? log(`Lighthouse analysis FAILED for ${site.url}`) : log(`Lighthouse analysis of '${site.name}' complete\n`)
+    
+      if(outcome.code !== 0){
+        log(`\tLighthouse analysis FAILED...\nNow stopping Lighthouse analysis for '${site.name}'\n\n`)
+        break;
+      }
+      log(`\tLighthouse analysis complete...\n`)
     }
     let processedSitesFilePath = join(out,'processedSites.txt')
     appendFileSync(processedSitesFilePath,`${site.url}\n`)
