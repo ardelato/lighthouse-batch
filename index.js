@@ -1,7 +1,7 @@
 'use strict'
 
 import 'shelljs/global.js';
-import { readFileSync, existsSync, appendFileSync } from 'fs';
+import { readFileSync, existsSync, appendFileSync, rm } from 'fs';
 import { join, resolve, dirname } from 'path';
 
 const JSON_EXT = '_report.json'
@@ -51,7 +51,6 @@ function sitesInfo(options,out) {
   return toBeProcessedSites.map(createIterableSiteObject);
 }
 
-
 function createIterableSiteObject(url) {
   url = url.trim()
 
@@ -74,25 +73,31 @@ function generateReport(site,options,out){
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
     const lhScript = lighthouseScript(log)
 
-    let cmd = `"${site.url}" --output json --quiet ${chromeFlags} ${customParams}`
+    let cmd = `"${site.url}" --output json --skip-audits='full-page-screenshot' ${chromeFlags} ${customParams}`
 
     log(`Lighthouse analyzing '${site.name}' ...\n`)
+
+    let outcome
 
     for(let i = 0;i < options.times;i++){
       log(`Run ${i+1}/${options.times} for '${site.name}'`)
       let fileName = `${site.name}_run${i+1}${JSON_EXT}`
       let filePath = join(out,fileName)
 
-      let outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
+      outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
     
       if(outcome.code !== 0){
         log(`\tLighthouse analysis FAILED...\nNow stopping Lighthouse analysis for '${site.name}'\n\n`)
+        let failedSitesFilePath = join(out,'failedSites.txt')
+        appendFileSync(failedSitesFilePath,`${site.url}\n`)
         break;
       }
       log(`\tLighthouse analysis complete...\n`)
     }
-    let processedSitesFilePath = join(out,'processedSites.txt')
-    appendFileSync(processedSitesFilePath,`${site.url}\n`)
+    if(outcome.code === 0){
+      let processedSitesFilePath = join(out,'processedSites.txt')
+      appendFileSync(processedSitesFilePath,`${site.url}\n`)
+    }
 }
 
 function lighthouseScript(log) {

@@ -9,3 +9,4 @@ COPY . .
 RUN npm install
 
 ENTRYPOINT node run.js -f sites.txt -v -t 5
+CMD "/bin/sh"
