@@ -65,33 +65,30 @@ function siteName(url) {
 function generateReport(site,options){
     const customParams = options.params ?? ''
     const chromeFlags = customParams.indexOf('--chrome-flags=') === -1 ? `--chrome-flags="--no-sandbox --headless --disable-gpu"` : ''
-    const lhScript = lighthouseScript(log)
 
-    let cmd = `"${site.url}" --output json --preset=desktop ${chromeFlags} ${customParams}`
+    const desktopCmd = `"${site.url}" --output json ${chromeFlags} --preset=desktop --skip-audits="full-page-screenshot" `
+    const mobileCmd = `"${site.url}" --output json ${chromeFlags} --form-factor=mobile --skip-audits="full-page-screenshot" `
 
     log(`Lighthouse analyzing '${site.name}' ...\n`)
 
-    let outcome
-
     for(let i = 0;i < options.times;i++){
-      log(`Run ${i+1}/${options.times} for '${site.name}'`)
-      let fileName = `${site.name}_run${i+1}${JSON_EXT}`
-      let filePath = join(options.out,fileName)
+      
 
-      outcome = exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
+      const desktopOutcome = runCMD(site,options,i,desktopCmd,"desktop")
+      const mobileOutcome = runCMD(site,options,i,mobileCmd,"mobile")
     
-      if(outcome.code !== 0){
+      if(desktopOutcome.code !== 0 || mobileOutcome.code !== 0){
         log(`\tLighthouse analysis FAILED...\nNow stopping Lighthouse analysis for '${site.name}'\n\n`)
         let failedSitesFilePath = join(options.out,'failedSites.txt')
         appendFileSync(failedSitesFilePath,`${site.url}\n`)
-        break;
+        return
       }
       log(`\tLighthouse analysis complete...\n`)
     }
-    if(outcome.code === 0){
-      let processedSitesFilePath = join(options.out,'processedSites.txt')
-      appendFileSync(processedSitesFilePath,`${site.url}\n`)
-    }
+
+    
+    let processedSitesFilePath = join(options.out,'processedSites.txt')
+    appendFileSync(processedSitesFilePath,`${site.url}\n`)
 }
 
 function lighthouseScript(log) {
@@ -106,6 +103,14 @@ function lighthouseScript(log) {
   }
   log(`Targeting local Lighthouse cli at '${cliPath}'`)
   return `node ${cliPath}`
+}
+
+function runCMD(site,options,runid,cmd,preset) {
+  const lhScript = lighthouseScript(log)
+  log(`Run ${runid+1}/${options.times} for '${site.name}'`)
+  let fileName = `${site.name}_run${runid+1}_${preset}${JSON_EXT}`
+  let filePath = join(options.out,fileName)
+  return exec(`${lhScript} ${cmd.concat(`--output-path "${filePath}"`)}`)
 }
 
 function makeReportDirectory(out){
