@@ -18,6 +18,7 @@
     "url": "https://github.com/mikestead/lighthouse-batch.git"
   },
   "dependencies": {
+    "amqplib-plus": "^1.0.9",
     "commander": "^7.2.0",
     "lighthouse": "^7.3.0",
     "shelljs": "^0.8.4"
