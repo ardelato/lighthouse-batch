@@ -3,18 +3,30 @@
 import 'shelljs/global.js';
 import { readFileSync, existsSync, appendFileSync } from 'fs';
 import { join, resolve, dirname } from 'path';
+import run from './sitePublisher.js';
+
 
 const JSON_EXT = '_report.json'
 
 export default function execute(options) {
   log = log.bind(log, options.verbose || false)
 
-  options.out = options.out ?? './report/lighthouse/'
-  makeReportDirectory(options.out)
+  //Going to push urls to RabbitMQ
+  if(options.role === 'producer'){
+    run();
+  }
+  //Going to pull urls from RabbitMQ
+  else if (options.role === 'consumer'){
 
-  sitesInfo(options).map((site) => generateReport(site,options))
+  }
+  else {
+    options.out = options.out ?? './report/lighthouse/'
+    makeReportDirectory(options.out)
 
-  log('Lighthouse batch run ended')
+    sitesInfo(options).map((site) => generateReport(site,options))
+
+    log('Lighthouse batch run ended')
+  }
 }
 
 function sitesInfo(options) {

@@ -10,6 +10,9 @@
   "engines": {
     "node": ">=12.13"
   },
+  "scripts": {
+    "test": "jest"
+  },
   "author": "Mike Stead",
   "license": "MIT",
   "homepage": "https://github.com/mikestead/lighthouse-batch",
@@ -22,5 +25,8 @@
     "commander": "^7.2.0",
     "lighthouse": "^7.3.0",
     "shelljs": "^0.8.4"
+  },
+  "devDependencies": {
+    "jest": "^27.0.3"
   }
 }
