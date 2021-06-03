@@ -3,7 +3,7 @@
 import 'shelljs/global.js';
 import { readFileSync, existsSync, appendFileSync } from 'fs';
 import { join, resolve, dirname } from 'path';
-import run from './sitePublisher.js';
+import runPublisher from './sitePublisher.js';
 
 
 const JSON_EXT = '_report.json'
@@ -12,8 +12,8 @@ export default function execute(options) {
   log = log.bind(log, options.verbose || false)
 
   //Going to push urls to RabbitMQ
-  if(options.role === 'producer'){
-    run();
+  if(options.role === 'publisher'){
+    runPublisher();
   }
   //Going to pull urls from RabbitMQ
   else if (options.role === 'consumer'){
