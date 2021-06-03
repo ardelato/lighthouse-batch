@@ -1,11 +1,9 @@
 import { Connection, Publisher} from 'amqplib-plus'
-import { readFileSync, existsSync, appendFileSync } from 'fs';
-import { join, resolve, dirname } from 'path';
+import { readFileSync, } from 'fs';
 
 
-const connection = new Connection({connectionString: 'amqp://localhost'});
+const connection = new Connection({connectionString: 'amqp://localhost'}, console);
 const queue = "sites_to_process";
-const msgContent = "HelloWorld";
 
 function runPublisher() {
 	connection.connect();

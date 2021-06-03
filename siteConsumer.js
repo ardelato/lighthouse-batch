@@ -2,26 +2,37 @@ import { Connection, Consumer } from 'amqplib-plus'
 
 const connection = new Connection({connectionString: 'amqp://localhost'}, console);
 const queue = "sites_to_process";
-const msgContent = "HelloWorld";
 
-/*
- *
- * Using Custom consumer example
- *
- */
+class CustomConsumer extends Consumer {
 
-async function runCustomConsumer() {
-	await connection.connect();
+	constructor(conn, prepareFn) {
+		super(conn, prepareFn, false, console);
+	}
 
-	const prepareConsumer = (ch) => {
-		ch.assertQueue(queue, { durable: false });
-		ch.prefetch(5);
-	};
+	processMessage(msg, channel) {
+		// Your own messages process logic
+		console.log("Message headers:", JSON.stringify(msg.properties.headers));
+		console.log("Message body:", msg.content.toString(), "\n");
 
-	const customConsumer = new CustomConsumer(connection, prepareConsumer);
-	await customConsumer.consume("my-queue", {});
+		channel.ack(msg);
+	}
 
-	console.log("Started consuming 'my-queue'");
 }
 
-runCustomConsumer();
+async function runConsumer() {
+	await connection.connect();
+
+	const prepareConsumer = async (channel) => {
+		await channel.assertQueue(queue, { durable: true});
+		await channel.prefetch(5);
+	};
+
+	const consumer = new CustomConsumer(connection, prepareConsumer);
+	console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
+
+	await consumer.consume(queue, {});
+	console.log("Started consuming: %s", queue);
+
+}
+
+export default runConsumer;

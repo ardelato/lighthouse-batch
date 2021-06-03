@@ -4,7 +4,7 @@ import 'shelljs/global.js';
 import { readFileSync, existsSync, appendFileSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import runPublisher from './sitePublisher.js';
-
+import runConsumer from './siteConsumer.js';
 
 const JSON_EXT = '_report.json'
 
@@ -17,7 +17,7 @@ export default function execute(options) {
   }
   //Going to pull urls from RabbitMQ
   else if (options.role === 'consumer'){
-
+    runConsumer();
   }
   else {
     options.out = options.out ?? './report/lighthouse/'
