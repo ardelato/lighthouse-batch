@@ -1,0 +1,16 @@
+services:
+    rabbitmq:
+        build: ./rabbitmq
+        image: rabbitmq-custom
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+    lhbatch:
+        build: .
+        container_name: lighthouse-batch-standalone
+        image: lighthouse-batch
+        command: node run.js -f sample_sites.txt -v -t 5 -r standalone
+        volumes:
+            - type: bind
+              source: ./report/
+              target: /app/report/

@@ -10,7 +10,9 @@ function runPublisher() {
 
 	// Method to be called before instance is created and after every connection auto-reconnect
 	const preparePublisher = (channel) => {
-		channel.assertQueue(queue, { durable: true });
+		channel.assertQueue(queue, { 
+			durable: true
+		 });
 		console.log("Publisher ready");
 	};
 
