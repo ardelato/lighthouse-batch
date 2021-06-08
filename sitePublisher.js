@@ -5,27 +5,36 @@ import { readFileSync, } from 'fs';
 const connection = new Connection({connectionString: 'amqp://localhost'}, console);
 const queue = "sites_to_process";
 
-function runPublisher() {
+function runPublisher(){
+
 	connection.connect();
 
-	// Method to be called before instance is created and after every connection auto-reconnect
-	const preparePublisher = (channel) => {
-		channel.assertQueue(queue, { 
-			durable: true
-		 });
-		console.log("Publisher ready");
-	};
+	const preparePublisher = (channel) =>{
+		channel.assertQueue(queue,{durable: true});
+		channel.assertExchange("test-exchange","x-message-deduplication", {
+			durable: true,
+			arguments: {
+				"x-cache-size": 10,
+			}
+		});
+		channel.bindQueue(queue,"test-exchange",'')
+		console.log("Publisher Ready");
+	}
 
-	// Creates the instance
-	const publisher = new Publisher(connection, preparePublisher);
-
+	const publisher = new Publisher(connection,preparePublisher);
+	
 	let sites = readFileSync('./sample_sites.txt','utf8').trim().split('\n');
 
+	let count = 0;
+
 	for(let site of sites) {
-		// Send messages to message broker
 		console.log("Sending: " + site);
-		publisher.sendToQueue(queue, Buffer.from(site), { persistent: true
-    	});
+		publisher.publish("test-exchange",'',Buffer.from(site), {
+			headers: {
+				"x-deduplication-header": count
+			}
+		});
+		count++;
 	}
 
 	console.log(' [x] Sent %s',sites);
@@ -35,5 +44,9 @@ function runPublisher() {
 		process.exit(0);
 	}, 500);
 }
+
+
+
+
 
 export default runPublisher;
