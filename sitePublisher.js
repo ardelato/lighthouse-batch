@@ -5,19 +5,19 @@ import { readFileSync, } from 'fs';
 const connection = new Connection({connectionString: 'amqp://localhost'}, console);
 const queue = "sites_to_process";
 
-function runPublisher(){
+async function runPublisher(){
 
-	connection.connect();
+	await connection.connect();
 
-	const preparePublisher = (channel) =>{
-		channel.assertQueue(queue,{durable: true});
-		channel.assertExchange("test-exchange","x-message-deduplication", {
+	const preparePublisher = async (channel) => {
+		await channel.assertQueue(queue,{durable: true});
+		await channel.assertExchange("test-exchange","x-message-deduplication", {
 			durable: true,
 			arguments: {
-				"x-cache-size": 10,
+				"x-cache-size": 300000,
 			}
 		});
-		channel.bindQueue(queue,"test-exchange",'')
+		await channel.bindQueue(queue,"test-exchange",'')
 		console.log("Publisher Ready");
 	}
 
@@ -29,7 +29,7 @@ function runPublisher(){
 
 	for(let site of sites) {
 		console.log("Sending: " + site);
-		publisher.publish("test-exchange",'',Buffer.from(site), {
+		await publisher.publish("test-exchange",'',Buffer.from(site), {
 			headers: {
 				"x-deduplication-header": count
 			}
