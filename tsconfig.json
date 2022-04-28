@@ -5,6 +5,6 @@
     "removeComments": true, /* Remove comments */
     "sourceMap": true,
     "outDir": "dist",
-    "noImplicitAny": false
+    "noImplicitAny": false,
   },
 }
