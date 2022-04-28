@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-'use strict'
-
 import { Command } from 'commander/esm.mjs';
 import execute from './index.js'
 
