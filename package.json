@@ -1,14 +1,10 @@
 {
   "name": "lighthouse-batch",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "description": "Generate lighthouse reports for one or more websites",
-  "type": "module",
   "main": "index.js",
-  "bin": {
-    "lighthouse-batch": "run.js"
-  },
   "engines": {
-    "node": ">=12.13"
+    "node": ">=14"
   },
   "author": "Mike Stead",
   "license": "MIT",
@@ -21,5 +17,10 @@
     "commander": "^7.2.0",
     "lighthouse": "^8.3.0",
     "shelljs": "^0.8.4"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.2",
+    "@types/node": "^17.0.29",
+    "typescript": "^4.6.3"
   }
 }
