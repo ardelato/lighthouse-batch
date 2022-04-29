@@ -10,10 +10,6 @@ process.on('SIGINT', () => {
   killAll();
 });
 
-process.on('beforeExit', () => {
-  log.info('Finished')
-})
-
 export async function executeABBatch(options) {
   if (options.clean) {
     Sites.clean();
