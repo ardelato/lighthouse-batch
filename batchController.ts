@@ -2,14 +2,49 @@ import LightHouseRunner from "./lighthouseRunner";
 import ChromeRunner from "./chromeRunner";
 import { Logger } from "tslog";
 import { readFileSync } from "fs";
+import Sites, { Site } from "./siteTracker";
 
 const log = new Logger({});
 
 export default class BatchController {
+  sitesToProcess!: Site | Site[];
 
-  public parseAndqueueUpSites(file: string) {
+  constructor (sites: string[] | null, file: string | null) {
+    if (sites) {
+      this.parseSitesArrayAndQueueDB(sites)
+    }
+
+    if (file) {
+      this.parseSitesFileAndQueueDB(file)
+    }
+  }
+
+  private parseSitesFileAndQueueDB(file: string) {
     const sites = readFileSync(file, 'utf8').trim().split('\n');
-    log.info(sites)
+
+    sites.forEach((site) => {
+      const s: Site = {
+        url: site,
+        finished: false,
+        errors: false
+      }
+      Sites.createOrUpdate(s)
+    })
+  }
+
+  private parseSitesArrayAndQueueDB(sites: string[]) {
+    sites.forEach((site) => {
+      const s: Site = {
+        url: site,
+        finished: false,
+        errors: false
+      }
+      Sites.createOrUpdate(s)
+    })
+  }
+
+  public queueUpSitesFromDB() {
+    this.sitesToProcess = Sites.getStillUnprocessed()
   }
 
   public async launchChromeAndRunLighthouse(url: string) {

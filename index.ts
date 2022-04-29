@@ -14,9 +14,8 @@ process.on('beforeExit', () => {
 })
 
 export default async function execute(options) {
-  const batcher = new BatchController();
   if (options.clean) {
     Sites.clean();
   }
-  batcher.parseAndqueueUpSites(options.file)
+  const batcher = new BatchController(options.sites, options.file);
 }

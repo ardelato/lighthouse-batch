@@ -35,6 +35,10 @@ export default class Sites {
     )
   }
 
+  public static getStillUnprocessed() {
+    return this.sitesDB.get(s => !s.finished)
+  }
+
   public static clean() {
     this.sitesDB.remove()
   }
