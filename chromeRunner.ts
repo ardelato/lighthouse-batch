@@ -1,17 +1,22 @@
-import {killAll, launch} from 'chrome-launcher';
+import { LaunchedChrome } from "chrome-launcher"
+import { killAll, launch } from 'chrome-launcher';
+import { Logger } from "tslog";
 
+const log = new Logger();
 export default class ChromeRunner {
-  static chromeFlags = ["--no-sandbox", "--headless", "--disable-gpu"];
+  static chromeFlags = ["--disable-gpu"];
+  chrome!: LaunchedChrome
 
-  async start() {
-    const chrome = await launch({
+  async start(): Promise<number> {
+    log.info('Starting ChromeRunner')
+    this.chrome = await launch({
       chromeFlags: ChromeRunner.chromeFlags
     })
-
-    return chrome.port;
+    return this.chrome.port;
   }
 
   async stop(): Promise<void> {
-    await killAll();
+    log.info('Stopping ChromeRunner')
+    await this.chrome.kill();
   }
 }

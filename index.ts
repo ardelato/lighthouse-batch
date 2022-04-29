@@ -3,7 +3,7 @@ import { Logger } from "tslog";
 import BatchController from "./batchController";
 import Sites from "./siteTracker";
 
-const log = new Logger({});
+const log = new Logger();
 
 process.on('SIGINT', () => {
   killAll();
