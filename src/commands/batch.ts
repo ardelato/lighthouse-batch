@@ -1,5 +1,5 @@
 import { Command, Flags } from '@oclif/core'
-import execute from "../index_2"
+import execute from "../batchExecutor"
 import path from 'path';
 
 export default class Batch extends Command {

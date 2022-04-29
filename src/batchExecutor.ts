@@ -18,6 +18,5 @@ export default async function execute(options) {
     Sites.clean();
   }
   const batcher = new BatchController(options);
-
   await batcher.processSites()
 }
