@@ -30,7 +30,7 @@ export default class Sites {
 
   public static update(site: Site) {
     this.sitesDB.update(
-      s => s = { ...site },
+      s => s.errors = false,
       s => s.url === site.url
     )
   }
