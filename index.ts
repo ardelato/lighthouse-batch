@@ -1,7 +1,7 @@
 import {killAll} from "chrome-launcher"
 import { Logger } from "tslog";
-import BatchController from "./batchController";
-import Sites from "./siteTracker";
+import BatchController from "./src/batchController";
+import Sites from "./src/siteTracker";
 
 const log = new Logger();
 
