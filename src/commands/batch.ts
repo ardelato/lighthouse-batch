@@ -2,7 +2,7 @@ import { Command, Flags } from '@oclif/core'
 import execute from "../index_2"
 import path from 'path';
 
-export default class LighthouseBatcher extends Command {
+export default class Batch extends Command {
   static description = 'Run Lighthouse on all passed sites for a given number of times'
 
   static examples = [
@@ -52,7 +52,7 @@ export default class LighthouseBatcher extends Command {
   }
 
   async run() {
-    const { flags } = await this.parse(LighthouseBatcher);
+    const { flags } = await this.parse(Batch);
     if (!flags.sites && !flags.file) {
       this.error('Error: sites or file must be specified');
     }
