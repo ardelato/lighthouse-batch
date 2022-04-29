@@ -1,4 +1,5 @@
-import { Command, Flags} from '@oclif/core'
+import { Command, Flags } from '@oclif/core'
+import execute from "./index"
 import path from 'path';
 
 class LighthouseBatcher extends Command {
@@ -45,7 +46,7 @@ class LighthouseBatcher extends Command {
     if (!flags.sites && !flags.file) {
       this.error('Error: sites or file must be specified');
     }
-    console.log(flags)
+    execute(flags)
   }
 }
 
