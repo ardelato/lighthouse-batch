@@ -36,6 +36,11 @@ export default class Batch extends Command {
       description: 'Number of times to run Lighthouse on each url passed',
       default: 1
     }),
+    formFactor: Flags.string({
+      description: 'Compare the sites with a specified form factor',
+      default: 'desktop',
+      options: ['desktop', 'mobile']
+    }),
     clean: Flags.boolean({
       description: 'Removes all processed sites in temp database, forcing a clean audit of all passed sites',
       default: false

@@ -12,6 +12,7 @@ export default class BatchController {
   outputDir: string;
   verbose: boolean;
   numberOfRuns: number;
+  formFactor: 'desktop' | 'mobile';
 
   constructor (options) {
     if (options.sites) {
@@ -25,6 +26,7 @@ export default class BatchController {
     this.outputDir = options.output
     this.verbose = options.verbose
     this.numberOfRuns = options.times
+    this.formFactor = options.formFactor
 
     const retrievedSites = Sites.getStillUnprocessed()
 
@@ -71,7 +73,7 @@ export default class BatchController {
     const port = await chrome.start();
     for (let run = 0; run < this.numberOfRuns; run++) {
       log.info(`Run #${run+1} of ${this.numberOfRuns}`)
-      await this.runLightHouse(url,port,'desktop');
+      await this.runLightHouse(url,port, this.formFactor);
     }
     LightHouseRunner.resetRunID()
     await chrome.stop();
