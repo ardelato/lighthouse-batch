@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core'
-import execute from "../batchExecutor"
 import path from 'path';
+import executeBatch from '../batchExecutor';
 
 export default class Batch extends Command {
   static description = 'Run Lighthouse on all passed sites for a given number of times'
@@ -57,6 +57,6 @@ export default class Batch extends Command {
     if (!flags.sites && !flags.file) {
       this.error('Error: sites or file must be specified');
     }
-    execute(flags)
+    executeBatch(flags)
   }
 }

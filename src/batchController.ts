@@ -15,14 +15,6 @@ export default class BatchController {
   formFactor: 'desktop' | 'mobile';
 
   constructor (options) {
-    if (options.sites) {
-      this.parseSitesArrayAndQueueDB(options.sites)
-    }
-
-    if (options.file) {
-      this.parseSitesFileAndQueueDB(options.file)
-    }
-
     this.outputDir = options.output
     this.verbose = options.verbose
     this.numberOfRuns = options.times
@@ -35,30 +27,6 @@ export default class BatchController {
     } else {
       this.sitesToProcess = [retrievedSites]
     }
-  }
-
-  private parseSitesFileAndQueueDB(file: string) {
-    const sites = readFileSync(file, 'utf8').trim().split('\n');
-
-    sites.forEach((site) => {
-      const s: Site = {
-        url: site,
-        finished: false,
-        errors: false
-      }
-      Sites.createOrUpdate(s)
-    })
-  }
-
-  private parseSitesArrayAndQueueDB(sites: string[]) {
-    sites.forEach((site) => {
-      const s: Site = {
-        url: site,
-        finished: false,
-        errors: false
-      }
-      Sites.createOrUpdate(s)
-    })
   }
 
   public async processSites() {
