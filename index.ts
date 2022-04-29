@@ -12,11 +12,6 @@ process.on('SIGINT', () => {
 
   const lh = new LightHouseRunner('./report/', 'https://www.google.com', port, 'desktop')
 
-  try {
-    await lh.start();
-  } catch (e) {
-    console.error(e);
-  }
-
+  await lh.start();
   await chrome.stop();
 })();

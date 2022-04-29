@@ -25,8 +25,11 @@ export default class LightHouseRunner {
   }
 
   public async start() {
+    try {
     const results = await lighthouse(this.url, this.options, require(this.configPath))
-    console.log(JSON.stringify(results,null,2))
+    } catch (e) {
+      console.error(`Failed to Run Lighthouse on ${this.url} \n${e}`)
+    }
   }
 
   private makeReportDirectory() {
