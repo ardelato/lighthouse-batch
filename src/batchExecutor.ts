@@ -19,10 +19,18 @@ export async function executeABBatch(options) {
     Sites.clean();
   }
 
-  addHomePagesToQueueDB(options.baselineURL, options.comparisonURL)
+  if (options.formFactor === 'both' && options.pathsFile) {
+    parsePathsFileAndQueueDB(options.pathsFile, options.baselineURL, options.comparisonURL, 'desktop')
+    parsePathsFileAndQueueDB(options.pathsFile, options.baselineURL, options.comparisonURL, 'mobile')
+  } else if(options.pathsFile){
+    parsePathsFileAndQueueDB(options.pathsFile, options.baselineURL, options.comparisonURL, options.formFactor);
+  }
 
-  if (options.pathsFile) {
-    parsePathsFileAndQueueDB(options.pathsFile, options.baselineURL, options.comparisonURL)
+  if (options.formFactor === 'both') {
+    addHomePagesToQueueDB(options.baselineURL, options.comparisonURL, 'desktop');
+    addHomePagesToQueueDB(options.baselineURL, options.comparisonURL, 'mobile');
+  } else {
+    addHomePagesToQueueDB(options.baselineURL, options.comparisonURL, options.formFactor);
   }
 
   const batcher = new BatchController(options);
@@ -34,41 +42,43 @@ export default async function executeBatch(options) {
     Sites.clean();
   }
   if (options.sites) {
-    parseSitesArrayAndQueueDB(options.sites);
+    parseSitesArrayAndQueueDB(options.sites, options.formFactor);
   }
   if (options.file) {
-    parseSitesFileAndQueueDB(options.file);
+    parseSitesFileAndQueueDB(options.file, options.formFactor);
   }
 
   const batcher = new BatchController(options);
   await batcher.processSites()
 }
 
-function parseSitesFileAndQueueDB(file: string) {
+function parseSitesFileAndQueueDB(file: string, formFactor: 'desktop' | 'mobile') {
   const sites = readFileSync(file, 'utf8').trim().split('\n');
 
   sites.forEach((site) => {
     const s: Site = {
       url: site,
       finished: false,
-      errors: false
+      errors: false,
+      formFactor: formFactor
     }
     Sites.createOrUpdate(s)
   })
 }
 
-function parseSitesArrayAndQueueDB(sites: string[]) {
+function parseSitesArrayAndQueueDB(sites: string[], formFactor: 'desktop' | 'mobile') {
   sites.forEach((site) => {
     const s: Site = {
       url: site,
       finished: false,
-      errors: false
+      errors: false,
+      formFactor: formFactor
     }
     Sites.createOrUpdate(s)
   })
 }
 
-function parsePathsFileAndQueueDB(file: string, baselineURL: string, comparisonURL: string) {
+function parsePathsFileAndQueueDB(file: string, baselineURL: string, comparisonURL: string, formFactor: 'desktop' | 'mobile') {
   const paths = readFileSync(file, 'utf8').trim().split('\n');
 
 
@@ -76,30 +86,34 @@ function parsePathsFileAndQueueDB(file: string, baselineURL: string, comparisonU
     const baseSite: Site = {
       url: `${baselineURL}${path}`,
       finished: false,
-      errors: false
+      errors: false,
+      formFactor: formFactor
     }
 
     const cmpSite: Site = {
       url: `${comparisonURL}${path}`,
       finished: false,
-      errors: false
+      errors: false,
+      formFactor: formFactor
     }
     Sites.createOrUpdate(baseSite)
     Sites.createOrUpdate(cmpSite)
   })
 }
 
-function addHomePagesToQueueDB(baselineURL: string, comparisonURL) {
-  const baseSite: Site = {
+function addHomePagesToQueueDB(baselineURL: string, comparisonURL: string, formFactor: 'desktop' | 'mobile') {
+    const baseSite: Site = {
       url: `${baselineURL}`,
       finished: false,
-      errors: false
+      errors: false,
+      formFactor: formFactor
     }
 
     const cmpSite: Site = {
       url: `${comparisonURL}`,
       finished: false,
-      errors: false
+      errors: false,
+      formFactor: formFactor
     }
 
     Sites.createOrUpdate(baseSite)

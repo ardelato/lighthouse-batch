@@ -1,7 +1,6 @@
 import LightHouseRunner from "./lighthouseRunner";
 import ChromeRunner from "./chromeRunner";
 import { Logger } from "tslog";
-import { readFileSync } from "fs";
 import Sites, { Site } from "./siteTracker";
 import PromisePool from "@supercharge/promise-pool/dist";
 
@@ -12,13 +11,11 @@ export default class BatchController {
   outputDir: string;
   verbose: boolean;
   numberOfRuns: number;
-  formFactor: 'desktop' | 'mobile';
 
   constructor (options) {
     this.outputDir = options.output
     this.verbose = options.verbose
     this.numberOfRuns = options.times
-    this.formFactor = options.formFactor
 
     const retrievedSites = Sites.getStillUnprocessed()
 
@@ -31,17 +28,17 @@ export default class BatchController {
 
   public async processSites() {
     await PromisePool.for(this.sitesToProcess).withConcurrency(1).process(async (site) => {
-      await this.launchChromeAndRunLighthouse(site.url);
+      await this.launchChromeAndRunLighthouse(site.url, site.formFactor);
     })
   }
 
-  public async launchChromeAndRunLighthouse(url: string) {
+  public async launchChromeAndRunLighthouse(url: string, formFactor: 'desktop' | 'mobile') {
     log.info(`Auditing ${url}`)
     const chrome = new ChromeRunner();
     const port = await chrome.start();
     for (let run = 0; run < this.numberOfRuns; run++) {
       log.info(`Run #${run+1} of ${this.numberOfRuns}`)
-      await this.runLightHouse(url,port, this.formFactor);
+      await this.runLightHouse(url,port,formFactor);
     }
     LightHouseRunner.resetRunID()
     await chrome.stop();

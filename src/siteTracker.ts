@@ -9,6 +9,7 @@ const db = new SimplDB.Database({
 
 export type Site = {
   url: string,
+  formFactor: 'desktop' | 'mobile',
   finished: boolean,
   errors: boolean
 }
@@ -31,7 +32,7 @@ export default class Sites {
   public static update(site: Site) {
     this.sitesDB.update(
       s => s.errors = false,
-      s => s.url === site.url
+      s => s.url === site.url && s.formFactor === site.formFactor
     )
   }
 
@@ -57,6 +58,6 @@ export default class Sites {
   }
 
   private static entryExists(site: Site) {
-    return this.sitesDB.has(s => s.url === site.url)
+    return this.sitesDB.has(s => s.url === site.url && s.formFactor === site.formFactor)
   }
 }

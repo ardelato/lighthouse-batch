@@ -36,7 +36,7 @@ export default class LightHouseRunner {
 
     LightHouseRunner.runID += 1
 
-    this.fullPathOutputFileName = `${LightHouseRunner.outputDir}/${this.outputFileName}_report_${LightHouseRunner.runID}.json`
+    this.fullPathOutputFileName = `${LightHouseRunner.outputDir}/${this.outputFileName}_report_${formFactor}_${LightHouseRunner.runID}.json`
   }
 
   public async start() {
