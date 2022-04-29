@@ -9,15 +9,18 @@ const log = new Logger({});
 
 export default class BatchController {
   sitesToProcess: Site[];
+  outputDir: string;
 
-  constructor (sites: string[] | null, file: string | null) {
-    if (sites) {
-      this.parseSitesArrayAndQueueDB(sites)
+  constructor (options) {
+    if (options.sites) {
+      this.parseSitesArrayAndQueueDB(options.sites)
     }
 
-    if (file) {
-      this.parseSitesFileAndQueueDB(file)
+    if (options.file) {
+      this.parseSitesFileAndQueueDB(options.file)
     }
+
+    this.outputDir = options.output
 
     const retrievedSites = Sites.getStillUnprocessed()
 
@@ -50,7 +53,6 @@ export default class BatchController {
       }
       Sites.createOrUpdate(s)
     })
-
   }
 
   public async processSites() {
@@ -64,7 +66,7 @@ export default class BatchController {
     const chrome = new ChromeRunner();
     const port = await chrome.start();
 
-    const lh = new LightHouseRunner('./report', url, port, 'desktop')
+    const lh = new LightHouseRunner(this.outputDir, url, port, 'desktop')
 
     try {
       await lh.start();
