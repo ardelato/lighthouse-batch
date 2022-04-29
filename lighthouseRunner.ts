@@ -9,12 +9,13 @@ const log = new Logger({});
 export default class LightHouseRunner {
   static outputDir: string;
   options = {
-    logLevel: 'error',
+    logLevel: 'info',
     output: 'json',
   };
   configPath: string
   url: string;
   outputFileName: string;
+  fullPathOutputFileName: string;
 
   constructor (outputDir: string, url: string, port: number, formFactor: 'desktop' | 'mobile') {
     if (!LightHouseRunner.outputDir) {
@@ -26,13 +27,17 @@ export default class LightHouseRunner {
     this.configPath = this.getConfigPath(formFactor);
     this.url = url
     this.outputFileName = this.getSiteName(url);
+    this.fullPathOutputFileName = `${LightHouseRunner.outputDir}/${this.outputFileName}_report.json`
     this.options["port"] = port;
   }
 
   public async start() {
     try {
+      log.info(`Running Lighthouse on ${this.url}`)
       const results = await lighthouse(this.url, this.options, require(this.configPath))
-      writeFileSync(`${LightHouseRunner.outputDir}/${this.outputFileName}_report.json`, results.report);
+
+      log.info(`Writing Results to ${this.fullPathOutputFileName}`)
+      writeFileSync(this.fullPathOutputFileName, results.report);
     } catch (e) {
       log.error(`Failed to Run Lighthouse on ${this.url} \n${e}`)
     }

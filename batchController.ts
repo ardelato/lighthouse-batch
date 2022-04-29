@@ -56,7 +56,7 @@ export default class BatchController {
     const chrome = new ChromeRunner();
     const port = await chrome.start();
 
-    const lh = new LightHouseRunner('./report/', url, port, 'desktop')
+    const lh = new LightHouseRunner('./report', url, port, 'desktop')
 
     log.info('Starting Lighthouse')
     await lh.start();
