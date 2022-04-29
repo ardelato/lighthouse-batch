@@ -17,6 +17,7 @@
     "@oclif/core": "^1.7.0",
     "chrome-launcher": "^0.15.0",
     "lighthouse": "^8.3.0",
+    "simpl.db": "^2.8.1",
     "tslog": "^3.3.3"
   },
   "devDependencies": {
