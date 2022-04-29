@@ -33,7 +33,7 @@ export async function executeABBatch(options) {
   await batcher.processSites()
 }
 
-export default async function executeBatch(options) {
+export async function executeBatch(options) {
   if (options.clean) {
     Sites.clean();
   }
