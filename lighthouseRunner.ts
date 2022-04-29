@@ -2,11 +2,14 @@ import lighthouse from "lighthouse";
 import { existsSync, fsyncSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { exec } from 'child_process';
+import { Logger } from "tslog";
+
+const log = new Logger({});
 
 export default class LightHouseRunner {
   static outputDir: string;
   options = {
-    logLevel: 'info',
+    logLevel: 'error',
     output: 'json',
   };
   configPath: string
@@ -31,7 +34,7 @@ export default class LightHouseRunner {
       const results = await lighthouse(this.url, this.options, require(this.configPath))
       writeFileSync(`${LightHouseRunner.outputDir}/${this.outputFileName}_report.json`, results.report);
     } catch (e) {
-      console.error(`Failed to Run Lighthouse on ${this.url} \n${e}`)
+      log.error(`Failed to Run Lighthouse on ${this.url} \n${e}`)
     }
   }
 
