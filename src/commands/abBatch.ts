@@ -1,5 +1,5 @@
 import { Command, Flags } from '@oclif/core'
-import execute from "../batchExecutor"
+import { executeABBatch } from "../batchExecutor"
 import path from 'path';
 
 export default class ABBatcher extends Command {
@@ -60,7 +60,6 @@ export default class ABBatcher extends Command {
 
   async run() {
     const { args, flags } = await this.parse(ABBatcher);
-    console.log(args)
-    console.log(flags)
+    executeABBatch({...args, ...flags})
   }
 }

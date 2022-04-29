@@ -19,6 +19,14 @@ export async function executeABBatch(options) {
     Sites.clean();
   }
 
+  addHomePagesToQueueDB(options.baselineURL, options.comparisonURL)
+
+  if (options.pathsFile) {
+    parsePathsFileAndQueueDB(options.pathsFile, options.baselineURL, options.comparisonURL)
+  }
+
+  const batcher = new BatchController(options);
+  await batcher.processSites()
 }
 
 export default async function executeBatch(options) {
@@ -58,4 +66,42 @@ function parseSitesArrayAndQueueDB(sites: string[]) {
     }
     Sites.createOrUpdate(s)
   })
+}
+
+function parsePathsFileAndQueueDB(file: string, baselineURL: string, comparisonURL: string) {
+  const paths = readFileSync(file, 'utf8').trim().split('\n');
+
+
+  paths.forEach((path) => {
+    const baseSite: Site = {
+      url: `${baselineURL}${path}`,
+      finished: false,
+      errors: false
+    }
+
+    const cmpSite: Site = {
+      url: `${comparisonURL}${path}`,
+      finished: false,
+      errors: false
+    }
+    Sites.createOrUpdate(baseSite)
+    Sites.createOrUpdate(cmpSite)
+  })
+}
+
+function addHomePagesToQueueDB(baselineURL: string, comparisonURL) {
+  const baseSite: Site = {
+      url: `${baselineURL}`,
+      finished: false,
+      errors: false
+    }
+
+    const cmpSite: Site = {
+      url: `${comparisonURL}`,
+      finished: false,
+      errors: false
+    }
+
+    Sites.createOrUpdate(baseSite)
+    Sites.createOrUpdate(cmpSite)
 }
