@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@oclif/core": "^1.7.0",
+    "@supercharge/promise-pool": "^2.1.0",
     "chrome-launcher": "^0.15.0",
     "lighthouse": "^8.3.0",
     "simpl.db": "^2.8.1",
