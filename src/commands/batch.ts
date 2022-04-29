@@ -36,10 +36,6 @@ export default class Batch extends Command {
       description: 'Number of times to run Lighthouse on each url passed',
       default: 1
     }),
-    params: Flags.string({
-      char: 'p',
-      description: 'Extra parameters to pass to lighthouse cli for each execution e.g. -p "--perf --quiet"'
-    }),
     clean: Flags.boolean({
       description: 'Removes all processed sites in temp database, forcing a clean audit of all passed sites',
       default: false
