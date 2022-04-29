@@ -1,8 +1,14 @@
 import { Command, Flags } from '@oclif/core'
-import execute from "./index"
+import execute from "../index_2"
 import path from 'path';
 
-class LighthouseBatcher extends Command {
+export default class LighthouseBatcher extends Command {
+  static description = 'Run Lighthouse on all passed sites for a given number of times'
+
+  static examples = [
+    `$ lh batch --file <file_name.txt> --times 5`,
+    `$ lh batch --sites https://example.com https://google.com --times 5 --clean`,
+  ]
   static flags = {
     sites: Flags.string({
       char: 's',
@@ -17,11 +23,11 @@ class LighthouseBatcher extends Command {
     output: Flags.string({
       char: 'o',
       description: 'The output folder to place reports',
-      default: `${path.dirname(require.main?.filename || '')}/reports`,
-      parse: async input => `${path.dirname(require.main?.filename || '')}/${input}`
+      default: `${path.resolve('./')}/reports`,
+      parse: async input => `${path.resolve('./')}/${input}`
     }),
     verbose: Flags.boolean({
-      char: 'f',
+      char: 'v',
       description: 'Enable Verbose logging',
       default: false
     }),
@@ -35,7 +41,7 @@ class LighthouseBatcher extends Command {
       description: 'Extra parameters to pass to lighthouse cli for each execution e.g. -p "--perf --quiet"'
     }),
     clean: Flags.boolean({
-      description: 'Removes all processed sites in temp database, forcing a clean audit',
+      description: 'Removes all processed sites in temp database, forcing a clean audit of all passed sites',
       default: false
     }),
     help: Flags.help()
@@ -53,5 +59,3 @@ class LighthouseBatcher extends Command {
     execute(flags)
   }
 }
-
-LighthouseBatcher.run()

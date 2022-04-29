@@ -5,6 +5,8 @@
     "removeComments": true, /* Remove comments */
     "sourceMap": true,
     "outDir": "dist",
+    "rootDir": "src",
     "noImplicitAny": false,
   },
+  "include" : ["src/**/*"]
 }

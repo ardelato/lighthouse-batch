@@ -39,7 +39,7 @@
     "typescript": "^4.6.3"
   },
   "oclif": {
-    "bin": "lighthouse-batch",
+    "bin": "lh",
     "dirname": "lighthouse-batch",
     "commands": "./dist/commands",
     "plugins": [
