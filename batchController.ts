@@ -11,6 +11,7 @@ export default class BatchController {
   sitesToProcess: Site[];
   outputDir: string;
   verbose: boolean;
+  numberOfRuns: number;
 
   constructor (options) {
     if (options.sites) {
@@ -23,6 +24,7 @@ export default class BatchController {
 
     this.outputDir = options.output
     this.verbose = options.verbose
+    this.numberOfRuns = options.times
 
     const retrievedSites = Sites.getStillUnprocessed()
 
@@ -67,17 +69,23 @@ export default class BatchController {
     log.info(`Auditing ${url}`)
     const chrome = new ChromeRunner();
     const port = await chrome.start();
+    for (let run = 0; run < this.numberOfRuns; run++) {
+      log.info(`Run #${run+1} of ${this.numberOfRuns}`)
+      await this.runLightHouse(url,port,'desktop');
+    }
+    LightHouseRunner.resetRunID()
+    await chrome.stop();
+  }
 
-    const lh = new LightHouseRunner(this.outputDir, url, port, 'desktop',this.verbose)
+  private async runLightHouse(url: string, port: number, formFactor: 'desktop' | 'mobile') {
+      const lh = new LightHouseRunner(this.outputDir, url, port, formFactor,this.verbose)
 
     try {
       await lh.start();
       Sites.updateSiteAsFinished(url);
-      log.info('Finished Lighthouse, killing ChromeRunner')
     } catch (e) {
       log.error(`Failed to Audit ${url}`)
       Sites.updateSiteAsErrorOccurred(url)
     }
-    await chrome.stop();
   }
 }

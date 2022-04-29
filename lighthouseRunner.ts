@@ -7,6 +7,7 @@ import { Logger } from "tslog";
 const log = new Logger({});
 
 export default class LightHouseRunner {
+  private static runID: number = 0;
   static outputDir: string;
   options = {
     logLevel: 'error',
@@ -29,9 +30,13 @@ export default class LightHouseRunner {
     }
     this.configPath = this.getConfigPath(formFactor);
     this.url = url
-    this.outputFileName = this.getSiteName(url);
-    this.fullPathOutputFileName = `${LightHouseRunner.outputDir}/${this.outputFileName}_report.json`
     this.options["port"] = port;
+
+    this.outputFileName = this.getSiteName(url);
+
+    LightHouseRunner.runID += 1
+
+    this.fullPathOutputFileName = `${LightHouseRunner.outputDir}/${this.outputFileName}_report_${LightHouseRunner.runID}.json`
   }
 
   public async start() {
@@ -45,6 +50,10 @@ export default class LightHouseRunner {
       log.error(new Error(`Failed to Run Lighthouse on ${this.url} \n${e}`))
       throw e
     }
+  }
+
+  public static resetRunID() {
+    LightHouseRunner.runID = 0
   }
 
   private makeReportDirectory() {
