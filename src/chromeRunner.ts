@@ -7,6 +7,12 @@ export default class ChromeRunner {
   static chromeFlags = ["--disable-gpu"];
   chrome!: LaunchedChrome
 
+  constructor (headless: boolean = true) {
+    if (headless) {
+      ChromeRunner.chromeFlags.push("--headless");
+    }
+  }
+
   async start(): Promise<number> {
     log.info('Starting ChromeRunner')
     this.chrome = await launch({
