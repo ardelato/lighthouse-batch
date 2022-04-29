@@ -1,5 +1,5 @@
 import lighthouse from "lighthouse";
-import { existsSync, fsyncSync, writeFileSync } from 'fs';
+import { existsSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { exec } from 'child_process';
 import { Logger } from "tslog";
