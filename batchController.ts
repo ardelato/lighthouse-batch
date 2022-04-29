@@ -17,6 +17,8 @@ export default class BatchController {
     if (file) {
       this.parseSitesFileAndQueueDB(file)
     }
+
+    this.sitesToProcess = Sites.getStillUnprocessed()
   }
 
   private parseSitesFileAndQueueDB(file: string) {
@@ -41,10 +43,6 @@ export default class BatchController {
       }
       Sites.createOrUpdate(s)
     })
-  }
-
-  public queueUpSitesFromDB() {
-    this.sitesToProcess = Sites.getStillUnprocessed()
   }
 
   public async launchChromeAndRunLighthouse(url: string) {
