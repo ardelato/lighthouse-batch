@@ -67,6 +67,8 @@ export default class BatchController {
     const lh = new LightHouseRunner('./report', url, port, 'desktop')
 
     await lh.start();
+
+    Sites.updateSiteAsFinished(url);
     log.info('Finished Lighthouse, killing ChromeRunner')
     await chrome.stop();
   }

@@ -35,6 +35,13 @@ export default class Sites {
     )
   }
 
+  public static updateSiteAsFinished(url: string) {
+    this.sitesDB.update(
+      site => site.finished = true,
+      site => site.url === url
+    )
+  }
+
   public static getStillUnprocessed() {
     return this.sitesDB.get(s => !s.finished)
   }
