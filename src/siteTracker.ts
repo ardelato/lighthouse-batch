@@ -36,16 +36,16 @@ export default class Sites {
     )
   }
 
-  public static updateSiteAsFinished(url: string) {
+  public static updateSiteAsFinished(url: string, formFactor: 'desktop' | 'mobile') {
     this.sitesDB.update(
       site => site.finished = true,
-      site => site.url === url
+      site => site.url === url && site.formFactor === formFactor
     )
   }
-  public static updateSiteAsErrorOccurred(url: string) {
+  public static updateSiteAsErrorOccurred(url: string, formFactor: 'desktop' | 'mobile') {
     this.sitesDB.update(
       site => site.errors = true,
-      site => site.url === url
+      site => site.url === url && site.formFactor === formFactor
     )
   }
 

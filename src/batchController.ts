@@ -49,10 +49,10 @@ export default class BatchController {
 
     try {
       await lh.start();
-      Sites.updateSiteAsFinished(url);
+      Sites.updateSiteAsFinished(url,formFactor);
     } catch (e) {
       log.error(`Failed to Audit ${url}`)
-      Sites.updateSiteAsErrorOccurred(url)
+      Sites.updateSiteAsErrorOccurred(url,formFactor)
     }
   }
 }
