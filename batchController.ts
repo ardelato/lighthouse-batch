@@ -3,6 +3,7 @@ import ChromeRunner from "./chromeRunner";
 import { Logger } from "tslog";
 import { readFileSync } from "fs";
 import Sites, { Site } from "./siteTracker";
+import PromisePool from "@supercharge/promise-pool/dist";
 
 const log = new Logger({});
 
@@ -49,16 +50,22 @@ export default class BatchController {
       }
       Sites.createOrUpdate(s)
     })
+
+  }
+
+  public async processSites() {
+    await PromisePool.for(this.sitesToProcess).withConcurrency(1).process(async (site) => {
+      await this.launchChromeAndRunLighthouse(site.url);
+    })
   }
 
   public async launchChromeAndRunLighthouse(url: string) {
-    log.info('Starting ChromeRunner')
+    log.info(`Auditing ${url}`)
     const chrome = new ChromeRunner();
     const port = await chrome.start();
 
     const lh = new LightHouseRunner('./report', url, port, 'desktop')
 
-    log.info('Starting Lighthouse')
     await lh.start();
     log.info('Finished Lighthouse, killing ChromeRunner')
     await chrome.stop();
