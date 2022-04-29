@@ -34,6 +34,10 @@ class LighthouseBatcher extends Command {
       char: 'p',
       description: 'Extra parameters to pass to lighthouse cli for each execution e.g. -p "--perf --quiet"'
     }),
+    clean: Flags.boolean({
+      description: 'Removes all processed sites in temp database, forcing a clean audit',
+      default: false
+    }),
     help: Flags.help()
   }
 

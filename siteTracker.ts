@@ -3,6 +3,7 @@ import SimplDB from 'simpl.db'
 const db = new SimplDB.Database({
   collectionsFolder: './tmp/',
   collectionTimestamps: true,
+  dataFile: '/tmp/backup.json',
   tabSize: 2
 });
 
@@ -13,28 +14,32 @@ export type Site = {
 }
 
 export default class Sites {
-  private sitesDB = db.createCollection<Site>('sites')
+  private static sitesDB = db.createCollection<Site>('sites')
 
-  public createOrUpdate(site: Site) {
-    if (this.entryExists(site)) {
+  public static createOrUpdate(site: Site) {
+    if (Sites.entryExists(site)) {
       this.update(site);
     } else {
       this.create(site);
     }
   }
 
-  public create(site: Site) {
+  public static create(site: Site) {
     this.sitesDB.create({ ...site })
   }
 
-  public update(site: Site) {
+  public static update(site: Site) {
     this.sitesDB.update(
       s => s = { ...site },
       s => s.url === site.url
     )
   }
 
-  private entryExists(site: Site) {
+  public static clean() {
+    this.sitesDB.remove()
+  }
+
+  private static entryExists(site: Site) {
     return this.sitesDB.has(s => s.url === site.url)
   }
 }
