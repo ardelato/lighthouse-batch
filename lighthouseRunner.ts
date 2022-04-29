@@ -1,5 +1,5 @@
 import lighthouse from "lighthouse";
-import { existsSync } from 'fs';
+import { existsSync, fsyncSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { exec } from 'child_process';
 
@@ -11,6 +11,7 @@ export default class LightHouseRunner {
   };
   configPath: string
   url: string;
+  outputFileName: string;
 
   constructor (outputDir: string, url: string, port: number, formFactor: 'desktop' | 'mobile') {
     if (!LightHouseRunner.outputDir) {
@@ -21,12 +22,14 @@ export default class LightHouseRunner {
     }
     this.configPath = this.getConfigPath(formFactor);
     this.url = url
-    this.options['port'] = port;
+    this.outputFileName = this.getSiteName(url);
+    this.options["port"] = port;
   }
 
   public async start() {
     try {
-    const results = await lighthouse(this.url, this.options, require(this.configPath))
+      const results = await lighthouse(this.url, this.options, require(this.configPath))
+      writeFileSync(`${LightHouseRunner.outputDir}/${this.outputFileName}_report.json`, results.report);
     } catch (e) {
       console.error(`Failed to Run Lighthouse on ${this.url} \n${e}`)
     }
@@ -44,8 +47,8 @@ export default class LightHouseRunner {
     return existsSync(LightHouseRunner.outputDir)
   }
 
-  private getSiteName(): string{
-    return this.url.replace(/(?:^https?:\/\/)(?:www\.)?(?<domain>[a-z0-9\-\.]+)(?:\.[a-z\.]+)(?<path>[\/]?.*)/,'$<domain>$<path>').replace(/[\/\?#:\*\$@\!\.\+]/g, '-')
+  private getSiteName(url: string): string{
+    return url.replace(/(?:^https?:\/\/)(?:www\.)?(?<domain>[a-z0-9\-\.]+)(?:\.[a-z\.]+)(?<path>[\/]?.*)/,'$<domain>$<path>').replace(/[\/\?#:\*\$@\!\.\+]/g, '-')
   }
 
   private getConfigPath(formFactor: 'desktop' | 'mobile'): string {
