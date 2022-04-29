@@ -9,7 +9,7 @@ const log = new Logger({});
 export default class LightHouseRunner {
   static outputDir: string;
   options = {
-    logLevel: 'info',
+    logLevel: 'error',
     output: 'json',
   };
   configPath: string
@@ -17,12 +17,15 @@ export default class LightHouseRunner {
   outputFileName: string;
   fullPathOutputFileName: string;
 
-  constructor (outputDir: string, url: string, port: number, formFactor: 'desktop' | 'mobile') {
+  constructor (outputDir: string, url: string, port: number, formFactor: 'desktop' | 'mobile', verbose = false) {
     if (!LightHouseRunner.outputDir) {
       LightHouseRunner.outputDir = outputDir
     }
     if(!this.reportDirectoryExists() ) {
       this.makeReportDirectory();
+    }
+    if (verbose) {
+      this.options.logLevel = 'info'
     }
     this.configPath = this.getConfigPath(formFactor);
     this.url = url

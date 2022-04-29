@@ -5,11 +5,12 @@ import { readFileSync } from "fs";
 import Sites, { Site } from "./siteTracker";
 import PromisePool from "@supercharge/promise-pool/dist";
 
-const log = new Logger({});
+const log = new Logger();
 
 export default class BatchController {
   sitesToProcess: Site[];
   outputDir: string;
+  verbose: boolean;
 
   constructor (options) {
     if (options.sites) {
@@ -21,6 +22,7 @@ export default class BatchController {
     }
 
     this.outputDir = options.output
+    this.verbose = options.verbose
 
     const retrievedSites = Sites.getStillUnprocessed()
 
@@ -66,7 +68,7 @@ export default class BatchController {
     const chrome = new ChromeRunner();
     const port = await chrome.start();
 
-    const lh = new LightHouseRunner(this.outputDir, url, port, 'desktop')
+    const lh = new LightHouseRunner(this.outputDir, url, port, 'desktop',this.verbose)
 
     try {
       await lh.start();
