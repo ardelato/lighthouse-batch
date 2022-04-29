@@ -68,12 +68,12 @@ export default class BatchController {
 
     try {
       await lh.start();
+      Sites.updateSiteAsFinished(url);
+      log.info('Finished Lighthouse, killing ChromeRunner')
     } catch (e) {
       log.error(`Failed to Audit ${url}`)
       Sites.updateSiteAsErrorOccurred(url)
     }
-    Sites.updateSiteAsFinished(url);
-    log.info('Finished Lighthouse, killing ChromeRunner')
     await chrome.stop();
   }
 }

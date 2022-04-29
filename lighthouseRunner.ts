@@ -39,7 +39,8 @@ export default class LightHouseRunner {
       log.info(`Writing Results to ${this.fullPathOutputFileName}`)
       writeFileSync(this.fullPathOutputFileName, results.report);
     } catch (e) {
-      log.error(`Failed to Run Lighthouse on ${this.url} \n${e}`)
+      log.error(new Error(`Failed to Run Lighthouse on ${this.url} \n${e}`))
+      throw e
     }
   }
 
