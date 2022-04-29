@@ -41,6 +41,12 @@ export default class Sites {
       site => site.url === url
     )
   }
+  public static updateSiteAsErrorOccurred(url: string) {
+    this.sitesDB.update(
+      site => site.errors = true,
+      site => site.url === url
+    )
+  }
 
   public static getStillUnprocessed() {
     return this.sitesDB.get(s => !s.finished)

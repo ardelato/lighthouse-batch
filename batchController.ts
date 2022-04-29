@@ -66,8 +66,12 @@ export default class BatchController {
 
     const lh = new LightHouseRunner('./report', url, port, 'desktop')
 
-    await lh.start();
-
+    try {
+      await lh.start();
+    } catch (e) {
+      log.error(`Failed to Audit ${url}`)
+      Sites.updateSiteAsErrorOccurred(url)
+    }
     Sites.updateSiteAsFinished(url);
     log.info('Finished Lighthouse, killing ChromeRunner')
     await chrome.stop();
