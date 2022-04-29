@@ -7,7 +7,7 @@ import Sites, { Site } from "./siteTracker";
 const log = new Logger({});
 
 export default class BatchController {
-  sitesToProcess!: Site | Site[];
+  sitesToProcess: Site[];
 
   constructor (sites: string[] | null, file: string | null) {
     if (sites) {
@@ -18,7 +18,13 @@ export default class BatchController {
       this.parseSitesFileAndQueueDB(file)
     }
 
-    this.sitesToProcess = Sites.getStillUnprocessed()
+    const retrievedSites = Sites.getStillUnprocessed()
+
+    if (retrievedSites instanceof Array) {
+      this.sitesToProcess = retrievedSites
+    } else {
+      this.sitesToProcess = [retrievedSites]
+    }
   }
 
   private parseSitesFileAndQueueDB(file: string) {
