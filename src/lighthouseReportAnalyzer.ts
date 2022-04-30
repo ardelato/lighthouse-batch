@@ -38,11 +38,11 @@ export class LighthouseAnalyzer {
     return {
       performance: this.getPerformanceScore(),
       firstContentfulPaint: this.getFCPAuditScore(),
-      largestContentfulPaint: this.getLCPTime(),
-      cumulativeLayoutShift: this.getCLSTime(),
-      speedIndex: this.getSITime(),
-      interactive: this.getTTITime(),
-      totalBlockingTime: this.getTBTTime(),
+      largestContentfulPaint: this.getLCPAuditScore(),
+      cumulativeLayoutShift: this.getCLSAuditScore(),
+      speedIndex: this.getSIAuditScore(),
+      interactive: this.getTTIAuditScore(),
+      totalBlockingTime: this.getTBTAuditScore(),
     }
   }
 
@@ -61,28 +61,53 @@ export class LighthouseAnalyzer {
   }
 
   // Speed Index
-  getSITime() {
-    return this.getAuditTimeInSeconds('speed-index')
+  getSIAuditScore(): AuditScore {
+    const audit = 'speed-index'
+    return {
+      time: this.getAuditTimeInSeconds
+        (audit),
+      weight: this.getAuditWeight(audit)
+    }
   }
 
   // Largest Contentful Paint
-  getLCPTime() {
-    return this.getAuditTimeInSeconds('largest-contentful-paint')
+  getLCPAuditScore(): AuditScore {
+    const audit = 'largest-contentful-paint'
+    return {
+      time: this.getAuditTimeInSeconds
+        (audit),
+      weight: this.getAuditWeight(audit)
+    }
   }
 
   // Interactive
-  getTTITime() {
-    return this.getAuditTimeInSeconds('interactive')
+  getTTIAuditScore(): AuditScore {
+    const audit = 'interactive'
+    return {
+      time: this.getAuditTimeInSeconds
+        (audit),
+      weight: this.getAuditWeight(audit)
+    }
   }
 
   // Total Blocking Time
-  getTBTTime() {
-    return this.getAuditTimeInSeconds('total-blocking-time')
+  getTBTAuditScore() {
+    const audit = 'total-blocking-time'
+    return {
+      time: this.getAuditTimeInSeconds
+        (audit),
+      weight: this.getAuditWeight(audit)
+    }
   }
 
   // Cumulative Layout Shift
-  getCLSTime() {
-    return this.getAuditTimeInSeconds('cumulative-layout-shift')
+  getCLSAuditScore(): AuditScore {
+    const audit = 'cumulative-layout-shift'
+    return {
+      time: this.getAuditTimeInSeconds
+        (audit),
+      weight: this.getAuditWeight(audit)
+    }
   }
 
   private getAuditWeight(auditRef: string): number {
