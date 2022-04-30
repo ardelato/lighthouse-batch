@@ -2,16 +2,21 @@ import { readFileSync } from "fs";
 import Result from "lighthouse/types/lhr"
 import { resolve } from "path";
 
+type AuditScore = {
+  time: number,
+  weight: number
+}
+
 export class LighthouseAnalyzer {
   results: Result;
   score: {
     performance: number,
-    firstContentfulPaint: number,
-    largestContentfulPaint: number,
-    cumulativeLayoutShift: number,
-    speedIndex: number,
-    interactive: number,
-    totalBlockingTime: number,
+    firstContentfulPaint: AuditScore,
+    largestContentfulPaint: AuditScore,
+    cumulativeLayoutShift: AuditScore,
+    speedIndex: AuditScore,
+    interactive: AuditScore,
+    totalBlockingTime: AuditScore,
   }
 
   constructor (file: string) {
