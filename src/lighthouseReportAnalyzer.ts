@@ -28,6 +28,7 @@ export class LighthouseAnalyzer {
     this.score = this.getScores()
   }
 
+
   getURL() {
     return this.results.requestedUrl
   }
@@ -36,7 +37,11 @@ export class LighthouseAnalyzer {
     return this.results.configSettings.formFactor
   }
 
-  getScores() {
+  getScore() {
+    return { ...this.score }
+  }
+
+  private getScores() {
     return {
       performance: this.getPerformanceScore(),
       firstContentfulPaint: this.getFCPAuditScore(),
@@ -126,5 +131,4 @@ export class LighthouseAnalyzer {
   private getAudit(audit: string) {
     return this.results.audits[audit]
   }
-
 }
