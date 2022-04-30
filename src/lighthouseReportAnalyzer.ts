@@ -37,7 +37,7 @@ export class LighthouseAnalyzer {
   getScores() {
     return {
       performance: this.getPerformanceScore(),
-      firstContentfulPaint: this.getFCPTime(),
+      firstContentfulPaint: this.getFCPAuditScore(),
       largestContentfulPaint: this.getLCPTime(),
       cumulativeLayoutShift: this.getCLSTime(),
       speedIndex: this.getSITime(),
@@ -51,8 +51,13 @@ export class LighthouseAnalyzer {
   }
 
   // First Contentful Paint
-  getFCPTime() {
-    return this.getAuditTimeInSeconds('first-contentful-paint')
+  getFCPAuditScore(): AuditScore {
+    const audit = 'first-contentful-paint'
+    return {
+      time: this.getAuditTimeInSeconds
+        (audit),
+      weight: this.getAuditWeight(audit)
+    }
   }
 
   // Speed Index
@@ -78,6 +83,11 @@ export class LighthouseAnalyzer {
   // Cumulative Layout Shift
   getCLSTime() {
     return this.getAuditTimeInSeconds('cumulative-layout-shift')
+  }
+
+  private getAuditWeight(auditRef: string): number {
+    const audit = this.results.categories.peformance.auditRefs.find(audit => audit.id === auditRef)
+    return audit?.weight ?? 0
   }
 
   private getAuditTimeInSeconds(audit: string) {
