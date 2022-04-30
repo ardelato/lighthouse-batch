@@ -3,19 +3,24 @@ import Result from "lighthouse/types/lhr"
 import { resolve } from "path";
 
 export type AuditScore = {
-  time: number,
+  score: number,
+  scoreType: string,
   weight: number
 }
 
 export type LighthouseMetrics = {
     performance: number,
-    firstContentfulPaint: AuditScore,
-    largestContentfulPaint: AuditScore,
-    cumulativeLayoutShift: AuditScore,
-    speedIndex: AuditScore,
-    interactive: AuditScore,
-    totalBlockingTime: AuditScore,
+    audits: Record<string, AuditScore>
 }
+
+const audits = [
+  'cumulative-layout-shift',
+  'first-contentful-paint',
+  'interactive',
+  'largest-contentful-paint',
+  'speed-index',
+  'total-blocking-time',
+]
 
 export class LighthouseAnalyzer {
   results: Result;
@@ -44,12 +49,7 @@ export class LighthouseAnalyzer {
   private getScores(): LighthouseMetrics {
     return {
       performance: this.getPerformanceScore(),
-      firstContentfulPaint: this.getFCPAuditScore(),
-      largestContentfulPaint: this.getLCPAuditScore(),
-      cumulativeLayoutShift: this.getCLSAuditScore(),
-      speedIndex: this.getSIAuditScore(),
-      interactive: this.getTTIAuditScore(),
-      totalBlockingTime: this.getTBTAuditScore(),
+      audits: this.getAllAuditScores()
     }
   }
 
@@ -57,64 +57,19 @@ export class LighthouseAnalyzer {
     return this.results.categories.performance.score ?? 0
   }
 
-  // First Contentful Paint
-  getFCPAuditScore(): AuditScore {
-    const audit = 'first-contentful-paint'
-    return {
-      time: this.getAuditTimeInSeconds
-        (audit),
-      weight: this.getAuditWeight(audit)
-    }
-  }
+  private getAllAuditScores() {
 
-  // Speed Index
-  getSIAuditScore(): AuditScore {
-    const audit = 'speed-index'
-    return {
-      time: this.getAuditTimeInSeconds
-        (audit),
-      weight: this.getAuditWeight(audit)
-    }
-  }
+    const auditScores: Record<string, AuditScore> = {}
 
-  // Largest Contentful Paint
-  getLCPAuditScore(): AuditScore {
-    const audit = 'largest-contentful-paint'
-    return {
-      time: this.getAuditTimeInSeconds
-        (audit),
-      weight: this.getAuditWeight(audit)
-    }
-  }
+    audits.forEach(audit => {
+      auditScores[audit] = {
+        score: this.getAuditScore(audit),
+        scoreType: this.getAuditScoreType(audit),
+        weight: this.getAuditWeight(audit),
+      }
+    })
 
-  // Interactive
-  getTTIAuditScore(): AuditScore {
-    const audit = 'interactive'
-    return {
-      time: this.getAuditTimeInSeconds
-        (audit),
-      weight: this.getAuditWeight(audit)
-    }
-  }
-
-  // Total Blocking Time
-  getTBTAuditScore() {
-    const audit = 'total-blocking-time'
-    return {
-      time: this.getAuditTimeInSeconds
-        (audit),
-      weight: this.getAuditWeight(audit)
-    }
-  }
-
-  // Cumulative Layout Shift
-  getCLSAuditScore(): AuditScore {
-    const audit = 'cumulative-layout-shift'
-    return {
-      time: this.getAuditTimeInSeconds
-        (audit),
-      weight: this.getAuditWeight(audit)
-    }
+    return auditScores
   }
 
   private getAuditWeight(auditRef: string): number {
@@ -122,10 +77,13 @@ export class LighthouseAnalyzer {
     return audit?.weight ?? 0
   }
 
-  private getAuditTimeInSeconds(audit: string) {
-    const timing = this.getAudit(audit).numericValue ?? 0
+  private getAuditScore(audit: string): number {
+      const score = this.getAudit(audit).numericValue ?? 0
+      return Math.floor(score)
+  }
 
-    return Math.floor(timing)
+  private getAuditScoreType(audit: string): string {
+    return this.getAudit(audit).numericUnit ?? 'unitless'
   }
 
   private getAudit(audit: string) {
