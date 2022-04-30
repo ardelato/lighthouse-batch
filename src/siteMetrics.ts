@@ -1,4 +1,5 @@
 import SimplDB from 'simpl.db'
+import { LighthouseMetrics } from './lighthouseReportAnalyzer';
 
 const db = new SimplDB.Database({
   collectionsFolder: './tmp/',
@@ -10,7 +11,7 @@ const db = new SimplDB.Database({
 export type SiteMetric = {
   url: string,
   formFactor: 'desktop' | 'mobile',
-  score: {}
+  score: LighthouseMetrics
 }
 
 export default class Sites {
