@@ -45,23 +45,23 @@ export class LighthouseAnalyzer {
   }
 
   // Largest Contentful Paint
-  getLCPScore() {
-
+  getLCPTime() {
+    return this.getAuditTimeInSeconds('largest-contentful-paint')
   }
 
   // Interactive
-  getTTIScore() {
-
+  getTTITime() {
+    return this.getAuditTimeInSeconds('interactive')
   }
 
   // Total Blocking Time
-  getTBTScore() {
-
+  getTBTTime() {
+    return this.getAuditTimeInSeconds('total-blocking-time')
   }
 
   // Cumulative Layout Shift
-  getCLSScore() {
-
+  getCLSTime() {
+    return this.getAuditTimeInSeconds('cumulative-layout-shift')
   }
 
   private getAuditTimeInSeconds(audit: string) {
