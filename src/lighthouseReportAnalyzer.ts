@@ -29,19 +29,19 @@ export class LighthouseAnalyzer {
   }
 
 
-  getURL() {
+  getURL(): string {
     return this.results.requestedUrl
   }
 
-  getFormFactor() {
+  getFormFactor(): 'mobile' | 'desktop' {
     return this.results.configSettings.formFactor
   }
 
-  getScore() {
+  getScore(): LighthouseMetrics {
     return { ...this.score }
   }
 
-  private getScores() {
+  private getScores(): LighthouseMetrics {
     return {
       performance: this.getPerformanceScore(),
       firstContentfulPaint: this.getFCPAuditScore(),
@@ -53,7 +53,7 @@ export class LighthouseAnalyzer {
     }
   }
 
-  getPerformanceScore() {
+  getPerformanceScore(): number {
     return this.results.categories.performance.score ?? 0
   }
 
