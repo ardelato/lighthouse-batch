@@ -36,14 +36,12 @@ export class LighthouseAnalyzer {
 
   // First Contentful Paint
   getFCPTime() {
-    const timing = this.results.audits["first-contentful-paint"].numericValue ?? 0
-
-    return Math.floor(timing)
+    return this.getAuditTimeInSeconds('first-contentful-paint')
   }
 
   // Speed Index
-  getSIScore() {
-
+  getSITime() {
+    return this.getAuditTimeInSeconds('speed-index')
   }
 
   // Largest Contentful Paint
@@ -64,6 +62,16 @@ export class LighthouseAnalyzer {
   // Cumulative Layout Shift
   getCLSScore() {
 
+  }
+
+  private getAuditTimeInSeconds(audit: string) {
+    const timing = this.getAudit(audit).numericValue ?? 0
+
+    return Math.floor(timing)
+  }
+
+  private getAudit(audit: string) {
+    return this.results.audits[audit]
   }
 
 }
