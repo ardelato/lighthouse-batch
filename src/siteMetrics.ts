@@ -14,11 +14,11 @@ export type SiteMetric = {
   score: LighthouseMetrics
 }
 
-export default class Sites {
+export default class SiteMetrics {
   private static sitesDB = db.createCollection<SiteMetric>('metrics')
 
   public static createOrUpdate(site: SiteMetric) {
-    if (Sites.entryExists(site)) {
+    if (SiteMetrics.entryExists(site)) {
       this.update(site);
     } else {
       this.create(site);
