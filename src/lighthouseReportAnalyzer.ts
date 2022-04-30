@@ -6,16 +6,19 @@ export class LighthouseAnalyzer {
   results: Result;
   score: {
     performance: number,
-
+    firstContentfulPaint: number,
+    largestContentfulPaint: number,
+    cumulativeLayoutShift: number,
+    speedIndex: number,
+    interactive: number,
+    totalBlockingTime: number,
   }
 
   constructor (file: string) {
     const filePath = resolve(file)
     const content = readFileSync(filePath, 'utf8')
     this.results = JSON.parse(content)
-    this.score = {
-      performance: this.getPerformanceScore()
-    }
+    this.score = this.getScores()
   }
 
   getURL() {
@@ -26,12 +29,20 @@ export class LighthouseAnalyzer {
     return this.results.configSettings.formFactor
   }
 
-  getScore() {
-
+  getScores() {
+    return {
+      performance: this.getPerformanceScore(),
+      firstContentfulPaint: this.getFCPTime(),
+      largestContentfulPaint: this.getLCPTime(),
+      cumulativeLayoutShift: this.getCLSTime(),
+      speedIndex: this.getSITime(),
+      interactive: this.getTTITime(),
+      totalBlockingTime: this.getTBTTime(),
+    }
   }
 
   getPerformanceScore() {
-
+    return this.results.categories.performance.score ?? 0
   }
 
   // First Contentful Paint
