@@ -118,7 +118,7 @@ export class LighthouseAnalyzer {
   }
 
   private getAuditWeight(auditRef: string): number {
-    const audit = this.results.categories.peformance.auditRefs.find(audit => audit.id === auditRef)
+    const audit = this.results.categories.performance.auditRefs.find(audit => audit.id === auditRef)
     return audit?.weight ?? 0
   }
 
