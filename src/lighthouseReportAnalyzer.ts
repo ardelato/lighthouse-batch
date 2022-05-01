@@ -22,7 +22,7 @@ const audits = [
   'total-blocking-time',
 ]
 
-export class LighthouseAnalyzer {
+export class LighthouseReport {
   results: Result;
   score: LighthouseMetrics
 

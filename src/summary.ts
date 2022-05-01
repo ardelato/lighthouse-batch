@@ -1,7 +1,7 @@
 import { readdirSync } from 'fs';
 import path from 'path';
 import {Logger} from "tslog"
-import { LighthouseAnalyzer } from './lighthouseReportAnalyzer';
+import { LighthouseReport } from './lighthouseReportAnalyzer';
 import SiteMetrics, { MappedSiteMetric, SiteMetric } from './siteMetrics';
 
 const log = new Logger();
@@ -19,15 +19,15 @@ export default function summarizedScores() {
 function getAllReports() {
     const files = readdirSync(path.resolve('./reports/'))
 
-    const reports: LighthouseAnalyzer[] = files.map(file => {
+    const reports: LighthouseReport[] = files.map(file => {
         log.info(`Analyzing ${file}`)
-        return new LighthouseAnalyzer(`./reports/${file}`)
+        return new LighthouseReport(`./reports/${file}`)
     })
 
     return reports
 }
 
-function getSiteMetrics(reports: LighthouseAnalyzer[]){
+function getSiteMetrics(reports: LighthouseReport[]){
     return reports.map(report => {
         return {
             url: report.getURL(),
