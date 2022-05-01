@@ -1,11 +1,20 @@
 import { readdirSync } from 'fs';
-import * as util from 'util';
 import path from 'path';
 import {Logger} from "tslog"
 import { LighthouseAnalyzer } from './lighthouseReportAnalyzer';
 import SiteMetrics, { MappedSiteMetric, SiteMetric } from './siteMetrics';
 
 const log = new Logger();
+
+export default function summarizedScores() {
+    const reports = getAllReports()
+    const scores = getSiteMetrics(reports)
+    const rsScores = reduceScores(scores)
+    const averagedScores = averageScores(rsScores, 1)
+    const transformedScores = transformScoresToSiteMetric(averagedScores)
+
+    saveScores(transformedScores)
+}
 
 function getAllReports() {
     const files = readdirSync(path.resolve('./reports/'))
@@ -28,11 +37,11 @@ function getSiteMetrics(reports: LighthouseAnalyzer[]){
     })
 }
 
-function rs(scores): MappedSiteMetric {
-    const reducedScores: MappedSiteMetric = new Map();
+function reduceScores(scores): MappedSiteMetric {
+    const rs: MappedSiteMetric = new Map();
 
     scores.forEach(score => {
-        const siteScore = reducedScores.get(score.url)
+        const siteScore = rs.get(score.url)
         if (siteScore && siteScore[score.formFactor]) {
             aggregatedScores(siteScore[score.formFactor], score.score)
         } else if (siteScore) {
@@ -44,11 +53,11 @@ function rs(scores): MappedSiteMetric {
             newScore[score.formFactor] = new Map<string, number>()
 
             aggregatedScores(newScore[score.formFactor],score.score)
-            reducedScores.set(score.url, newScore)
+            rs.set(score.url, newScore)
         }
     })
 
-    return reducedScores
+    return rs
 }
 
 function aggregatedScores(previousScore: Map<string, number>, currentScore: Map<string, number>){
@@ -97,19 +106,8 @@ function transformScoresToSiteMetric(scores: MappedSiteMetric): SiteMetric[] {
     return transformedScores
 }
 
-function saveScores(scores) {
+function saveScores(scores: SiteMetric[]): void{
     scores.forEach(score => {
         SiteMetrics.createOrUpdate(score)
     })
 }
-function printScores(scores) {
-    log.info(util.inspect(scores, false, 3))
-}
-const reports = getAllReports()
-const scores = getSiteMetrics(reports)
-const rsScores = rs(scores)
-const averagedScores = averageScores(rsScores, 1)
-const transformedScores = transformScoresToSiteMetric(averagedScores)
-printScores(transformedScores)
-
-saveScores(transformedScores)
