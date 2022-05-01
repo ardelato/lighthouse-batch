@@ -1,5 +1,4 @@
 import SimplDB from 'simpl.db'
-import { LighthouseMetrics } from './lighthouseReportAnalyzer';
 
 const db = new SimplDB.Database({
   collectionsFolder: './tmp/',
@@ -8,10 +7,17 @@ const db = new SimplDB.Database({
   tabSize: 2
 });
 
+export type MappedSiteMetric = Map<string, {
+  'desktop'?: Map<string, number>,
+  'mobile'?: Map<string, number>
+}>
+
 export type SiteMetric = {
   url: string,
-  formFactor: 'desktop' | 'mobile',
-  score: LighthouseMetrics
+  scores: {
+    "desktop": {}
+    "mobile": {}
+  }
 }
 
 export default class SiteMetrics {
@@ -26,13 +32,13 @@ export default class SiteMetrics {
   }
 
   public static create(site: SiteMetric) {
-    this.sitesDB.create({ ...site })
+    this.sitesDB.create(site)
   }
 
-  public static update(site: SiteMetric) {
+  public static update(site: SiteMetric, ) {
     this.sitesDB.update(
-      s => s = site,
-      s => s.url === site.url && s.formFactor === site.formFactor
+      s => s = { ...s, ...site },
+      s => s.url === site.url
     )
   }
 
@@ -41,6 +47,6 @@ export default class SiteMetrics {
   }
 
   private static entryExists(site: SiteMetric) {
-    return this.sitesDB.has(s => s.url === site.url && s.formFactor === site.formFactor)
+    return this.sitesDB.has(s => s.url == site.url)
   }
 }
