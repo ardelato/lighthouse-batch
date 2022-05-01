@@ -10,7 +10,7 @@ export type AuditScore = {
 
 export type LighthouseMetrics = {
     performance: number,
-    audits: Record<string, AuditScore>
+    audits: Map<string, AuditScore>
 }
 
 const audits = [
@@ -59,14 +59,14 @@ export class LighthouseAnalyzer {
 
   private getAllAuditScores() {
 
-    const auditScores: Record<string, AuditScore> = {}
+    const auditScores = new Map<string, AuditScore>()
 
     audits.forEach(audit => {
-      auditScores[audit] = {
+      auditScores.set(audit, {
         score: this.getAuditScore(audit),
         scoreType: this.getAuditScoreType(audit),
         weight: this.getAuditWeight(audit),
-      }
+      })
     })
 
     return auditScores
