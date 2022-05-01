@@ -7,13 +7,17 @@ import SiteMetrics, { MappedSiteMetric, SiteMetric } from './siteMetrics';
 const log = new Logger();
 
 export default function summarizedScores() {
+    log.info('Analyzing Results')
     const reports = getAllReports()
     const scores = getSiteMetrics(reports)
+
     const rsScores = reduceScores(scores)
     const averagedScores = averageScores(rsScores, 1)
     const transformedScores = transformScoresToSiteMetric(averagedScores)
 
     saveScores(transformedScores)
+
+    log.info('Done Analyzing Results and Saved Scores')
 }
 
 function getAllReports() {
