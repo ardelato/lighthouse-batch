@@ -6,13 +6,13 @@ import SiteMetrics, { MappedSiteMetric, SiteMetric } from './siteMetrics';
 
 const log = new Logger();
 
-export default function summarizedScores() {
+export default function summarizedScores(averageBy: number) {
     log.info('Analyzing Results')
     const reports = getAllReports()
     const scores = getSiteMetrics(reports)
 
     const rsScores = reduceScores(scores)
-    const averagedScores = averageScores(rsScores, 1)
+    const averagedScores = averageScores(rsScores, averageBy)
     const transformedScores = transformScoresToSiteMetric(averagedScores)
 
     saveScores(transformedScores)

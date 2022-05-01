@@ -36,7 +36,7 @@ export async function executeABBatch(options) {
 
   const batcher = new BatchController(options);
   await batcher.processSites()
-  summarizedScores()
+  summarizedScores(options.times)
 }
 
 export async function executeBatch(options) {
