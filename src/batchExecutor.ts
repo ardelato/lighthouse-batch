@@ -1,8 +1,11 @@
+import { exec } from "child_process";
 import {killAll} from "chrome-launcher"
 import { readFileSync } from "fs";
 import { Logger } from "tslog";
 import BatchController from "./batchController";
+import SiteMetrics from "./siteMetrics";
 import Sites, { Site } from "./siteTracker";
+import summarizedScores from "./summary";
 
 const log = new Logger();
 
@@ -13,6 +16,8 @@ process.on('SIGINT', () => {
 export async function executeABBatch(options) {
   if (options.clean) {
     Sites.clean();
+    SiteMetrics.clean();
+    exec(`rm ${options.output}/*.json`)
   }
 
   if (options.formFactor === 'both' && options.pathsFile) {
@@ -31,6 +36,7 @@ export async function executeABBatch(options) {
 
   const batcher = new BatchController(options);
   await batcher.processSites()
+  summarizedScores()
 }
 
 export async function executeBatch(options) {
