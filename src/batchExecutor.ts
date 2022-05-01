@@ -5,7 +5,7 @@ import { Logger } from "tslog";
 import BatchController from "./batchController";
 import SiteMetrics from "./siteMetrics";
 import Sites, { Site } from "./siteTracker";
-import summarizedScores from "./summary";
+import summarizedScores, { diffResults } from "./summary";
 
 const log = new Logger();
 
@@ -37,6 +37,7 @@ export async function executeABBatch(options) {
   const batcher = new BatchController(options);
   await batcher.processSites()
   summarizedScores(options.times)
+  diffResults(options.baselineURL, options.comparisonURL,options.pathsFile)
 }
 
 export async function executeBatch(options) {

@@ -1,4 +1,4 @@
-import { readdirSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import {Logger} from "tslog"
 import { LighthouseReport } from './lighthouseReportAnalyzer';
@@ -18,6 +18,53 @@ export default function summarizedScores(averageBy: number) {
     saveScores(transformedScores)
 
     log.info('Done Analyzing Results and Saved Scores')
+}
+
+export function diffResults(baselineURL, comparisonURL, pathsFile: string | null) {
+    const diffs = {}
+    if (pathsFile) {
+        const paths = readFileSync(pathsFile, 'utf8').trim().split('\n');
+
+        paths.forEach(path => {
+            const baslineScore = SiteMetrics.getSiteScores(`${baselineURL}${path}`)
+            const newScore = SiteMetrics.getSiteScores(`${comparisonURL}${path}`)
+
+
+            diffs[path] = {
+                scores: {
+                    'desktop': diffFormFactorScores(baslineScore.scores['desktop'], newScore.scores['desktop']),
+                    'mobile': diffFormFactorScores(baslineScore.scores['mobile'], newScore.scores['mobile'])
+                }
+            }
+        })
+    }
+
+    const baslineScore = SiteMetrics.getSiteScores(`${baselineURL}/`)
+    const newScore = SiteMetrics.getSiteScores(`${comparisonURL}/`)
+    diffs['/'] = {
+        scores: {
+            'desktop': diffFormFactorScores(baslineScore.scores['desktop'], newScore.scores['desktop']),
+            'mobile': diffFormFactorScores(baslineScore.scores['mobile'], newScore.scores['mobile'])
+        }
+    }
+
+    writeFileSync('./diff.json', JSON.stringify(diffs));
+}
+
+function diffFormFactorScores(baselineScores, newScores) {
+    const diffedScores = {}
+    for (let key in baselineScores) {
+        const diff = baselineScores[key] - newScores[key]
+        const sum = baselineScores[key] + newScores[key]
+        const percentDiff = key === 'performance' ? -(diff / (sum / 2) * 100) : diff / (sum / 2) * 100
+
+        diffedScores[key] = {
+            previousScore: baselineScores[key],
+            newScore: newScores[key],
+            delta: `${percentDiff.toFixed(2)}%`
+        }
+    }
+    return diffedScores
 }
 
 function getAllReports() {

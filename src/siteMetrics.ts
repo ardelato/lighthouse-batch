@@ -46,6 +46,15 @@ export default class SiteMetrics {
     this.sitesDB.remove()
   }
 
+  public static getSiteScores(url: string): SiteMetric {
+    const score = this.sitesDB.get(site => site.url === url)
+
+    if (score instanceof Array) {
+      return score[0]
+    }
+    return score
+  }
+
   private static entryExists(site: SiteMetric) {
     return this.sitesDB.has(s => s.url == site.url)
   }
