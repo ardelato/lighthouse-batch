@@ -57,6 +57,17 @@ export class LighthouseAnalyzer {
     return this.results.categories.performance.score ?? 0
   }
 
+  getSummarizedScores(): Map<string, number> {
+    const summarizedScores = new Map<string, number>()
+    summarizedScores.set('performance', this.score.performance)
+
+    for (let [audit, auditScore] of this.score.audits) {
+      summarizedScores.set(audit, auditScore.score)
+    }
+
+    return summarizedScores
+  }
+
   private getAllAuditScores() {
 
     const auditScores = new Map<string, AuditScore>()
