@@ -25,7 +25,9 @@
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-plugins": "^2.0.1",
     "@supercharge/promise-pool": "^2.1.0",
+    "@types/cli-progress": "^3.9.2",
     "chrome-launcher": "^0.15.0",
+    "cli-progress": "^3.11.0",
     "lighthouse": "^8.3.0",
     "simpl.db": "^2.8.1",
     "tslog": "^3.3.3"

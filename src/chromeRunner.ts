@@ -2,14 +2,21 @@ import { LaunchedChrome } from "chrome-launcher"
 import { killAll, launch } from 'chrome-launcher';
 import { Logger } from "tslog";
 
-const log = new Logger();
+const log = new Logger({
+  minLevel: 'error'
+});
 export default class ChromeRunner {
   static chromeFlags = ["--disable-gpu"];
   chrome!: LaunchedChrome
 
-  constructor (headless: boolean = true) {
+  constructor (headless: boolean = true, verbose: boolean = false) {
     if (headless) {
       ChromeRunner.chromeFlags.push("--headless");
+    }
+    if (verbose) {
+      log.setSettings({
+        minLevel: 'info',
+      })
     }
   }
 

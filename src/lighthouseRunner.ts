@@ -4,7 +4,9 @@ import { resolve } from 'path';
 import { exec } from 'child_process';
 import { Logger } from "tslog";
 
-const log = new Logger({});
+const log = new Logger({
+  minLevel: 'error'
+});
 
 export default class LightHouseRunner {
   private static runID: number = 0;
@@ -27,7 +29,11 @@ export default class LightHouseRunner {
     }
     if (verbose) {
       this.options.logLevel = 'info'
+      log.setSettings({
+        minLevel: 'info'
+      })
     }
+
     this.configPath = this.getConfigPath(formFactor);
     this.url = url
     this.options["port"] = port;

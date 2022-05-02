@@ -48,7 +48,7 @@ export function diffResults(baselineURL, comparisonURL, pathsFile: string | null
         }
     }
 
-    writeFileSync('./diff.json', JSON.stringify(diffs));
+    writeFileSync('./diff.json', JSON.stringify(diffs,null,2));
 }
 
 function diffFormFactorScores(baselineScores, newScores) {
