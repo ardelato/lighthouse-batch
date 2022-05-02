@@ -1,5 +1,6 @@
-/report
+/reports
 node_modules
 /npm-debug.log
 /.DS_Store
 *.txt
+/tmp

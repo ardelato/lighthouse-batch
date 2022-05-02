@@ -1,14 +1,13 @@
 {
   "name": "lighthouse-batch",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "description": "Generate lighthouse reports for one or more websites",
-  "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
   "bin": {
-    "lighthouse-batch": "run.js"
+    "lighthouse-batch": "./bin/run"
   },
   "engines": {
-    "node": ">=12.13"
+    "node": ">=14"
   },
   "author": "Mike Stead",
   "license": "MIT",
@@ -17,9 +16,37 @@
     "type": "git",
     "url": "https://github.com/mikestead/lighthouse-batch.git"
   },
+  "files": [
+    "/bin",
+    "/dist"
+  ],
   "dependencies": {
-    "commander": "^7.2.0",
+    "@oclif/core": "^1.7.0",
+    "@oclif/plugin-help": "^5",
+    "@oclif/plugin-plugins": "^2.0.1",
+    "@supercharge/promise-pool": "^2.1.0",
+    "@types/cli-progress": "^3.9.2",
+    "chrome-launcher": "^0.15.0",
+    "cli-progress": "^3.11.0",
     "lighthouse": "^8.3.0",
-    "shelljs": "^0.8.4"
+    "simpl.db": "^2.8.1",
+    "tslog": "^3.3.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.2",
+    "@types/node": "^17.0.29",
+    "oclif": "^2",
+    "ts-node": "^10.7.0",
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.3"
+  },
+  "oclif": {
+    "bin": "lh",
+    "dirname": "lighthouse-batch",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
+    ]
   }
 }
