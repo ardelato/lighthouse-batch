@@ -15,8 +15,8 @@ export type MappedSiteMetric = Map<string, {
 export type SiteMetric = {
   url: string,
   scores: {
-    'desktop': Record<string, unknown>
-    'mobile': Record<string, unknown>
+    'desktop': Record<string, number>
+    'mobile': Record<string, number>
   }
 }
 
