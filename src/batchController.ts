@@ -5,7 +5,7 @@ import Sites, { Site } from "./siteTracker";
 import PromisePool from "@supercharge/promise-pool/dist";
 import cliProgress from "cli-progress"
 const multibar = new cliProgress.MultiBar({
-    format: 'Progress | {bar} | {percentage}% | ETA: {eta}s | {value}/{total} {action}',
+    format: 'Progress | {bar} | {percentage}% | ETA: {eta_formatted} | {value}/{total} {action}',
     barCompleteChar: '\u2588',
     barIncompleteChar: '\u2591',
     clearOnComplete: false,
