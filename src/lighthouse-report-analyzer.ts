@@ -1,6 +1,7 @@
-import { readFileSync } from "fs";
-import Result from "lighthouse/types/lhr"
-import { resolve } from "path";
+import {readFileSync} from 'node:fs'
+// eslint-disable-next-line node/no-missing-import
+import Result from 'lighthouse/types/lhr'
+import {resolve} from 'node:path'
 
 export type AuditScore = {
   score: number,
@@ -26,13 +27,12 @@ export class LighthouseReport {
   results: Result;
   score: LighthouseMetrics
 
-  constructor (file: string) {
+  constructor(file: string) {
     const filePath = resolve(file)
     const content = readFileSync(filePath, 'utf8')
     this.results = JSON.parse(content)
     this.score = this.getScores()
   }
-
 
   getURL(): string {
     return this.results.requestedUrl
@@ -43,13 +43,13 @@ export class LighthouseReport {
   }
 
   getScore(): LighthouseMetrics {
-    return { ...this.score }
+    return {...this.score}
   }
 
   private getScores(): LighthouseMetrics {
     return {
       performance: this.getPerformanceScore(),
-      audits: this.getAllAuditScores()
+      audits: this.getAllAuditScores(),
     }
   }
 
@@ -61,7 +61,7 @@ export class LighthouseReport {
     const summarizedScores = new Map<string, number>()
     summarizedScores.set('performance', this.score.performance)
 
-    for (let [audit, auditScore] of this.score.audits) {
+    for (const [audit, auditScore] of this.score.audits) {
       summarizedScores.set(audit, auditScore.score)
     }
 
@@ -69,16 +69,15 @@ export class LighthouseReport {
   }
 
   private getAllAuditScores() {
-
     const auditScores = new Map<string, AuditScore>()
 
-    audits.forEach(audit => {
+    for (const audit of audits) {
       auditScores.set(audit, {
         score: this.getAuditScore(audit),
         scoreType: this.getAuditScoreType(audit),
         weight: this.getAuditWeight(audit),
       })
-    })
+    }
 
     return auditScores
   }
@@ -89,8 +88,8 @@ export class LighthouseReport {
   }
 
   private getAuditScore(audit: string): number {
-      const score = this.getAudit(audit).numericValue ?? 0
-      return Math.floor(score)
+    const score = this.getAudit(audit).numericValue ?? 0
+    return Math.floor(score)
   }
 
   private getAuditScoreType(audit: string): string {
