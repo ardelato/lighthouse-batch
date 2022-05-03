@@ -4,8 +4,8 @@ const db = new SimplDB.Database({
   collectionsFolder: './tmp/',
   collectionTimestamps: true,
   dataFile: '/tmp/backup.json',
-  tabSize: 2
-});
+  tabSize: 2,
+})
 
 export type Site = {
   url: string,
@@ -19,33 +19,40 @@ export default class Sites {
 
   public static createOrUpdate(site: Site) {
     if (Sites.entryExists(site)) {
-      this.update(site);
+      this.update(site)
     } else {
-      this.create(site);
+      this.create(site)
     }
   }
 
   public static create(site: Site) {
-    this.sitesDB.create({ ...site })
+    this.sitesDB.create({...site})
   }
 
   public static update(site: Site) {
     this.sitesDB.update(
-      s => s.errors = false,
-      s => s.url === site.url && s.formFactor === site.formFactor
+      s => {
+        s.errors = false
+      },
+      s => s.url === site.url && s.formFactor === site.formFactor,
     )
   }
 
   public static updateSiteAsFinished(url: string, formFactor: 'desktop' | 'mobile') {
     this.sitesDB.update(
-      site => site.finished = true,
-      site => site.url === url && site.formFactor === formFactor
+      site => {
+        site.finished = true
+      },
+      site => site.url === url && site.formFactor === formFactor,
     )
   }
+
   public static updateSiteAsErrorOccurred(url: string, formFactor: 'desktop' | 'mobile') {
     this.sitesDB.update(
-      site => site.errors = true,
-      site => site.url === url && site.formFactor === formFactor
+      site => {
+        site.errors = true
+      },
+      site => site.url === url && site.formFactor === formFactor,
     )
   }
 
