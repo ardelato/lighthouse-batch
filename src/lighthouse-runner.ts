@@ -79,7 +79,7 @@ export default class LightHouseRunner {
   }
 
   private getSiteName(url: string): string {
-    return url.replace(/^ht{2}ps?:\/{2}(?:w{3}\.)?(?<domain>[\d.a-z\-]+)\.[.a-z]+(?<path>\/?.*)/, '$<domain>$<path>').replace(/[!#$*+./:?@]/g, '-')
+    return url.replace(/^ht{2}ps?:\/{2}(?:w{3}\.)?(?<domain>[\d.a-z-]+)\.[.a-z]+(?<path>\/?.*)/, '$<domain>$<path>').replace(/[!#$*+./:?@]/g, '-')
   }
 
   private getConfigPath(formFactor: 'desktop' | 'mobile'): string {
