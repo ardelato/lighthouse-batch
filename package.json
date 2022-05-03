@@ -1,6 +1,6 @@
 {
   "name": "lighthouse-batch",
-  "version": "7.2.0",
+  "version": "8.0.0",
   "description": "Generate lighthouse reports for one or more websites",
   "main": "dist/index.js",
   "bin": {
@@ -10,15 +10,23 @@
     "node": ">=14"
   },
   "author": "Mike Stead",
+  "contributors": [
+    {
+      "name": "Angel de la Torre",
+      "email": "angel.dlt.1996@gmail.com"
+    }
+  ],
   "license": "MIT",
-  "homepage": "https://github.com/mikestead/lighthouse-batch",
+  "homepage": "https://github.com/ardelato/lighthouse-batch",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mikestead/lighthouse-batch.git"
+    "url": "https://github.com/ardelato/lighthouse-batch.git"
   },
   "files": [
     "/bin",
-    "/dist"
+    "/dist",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
   ],
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
