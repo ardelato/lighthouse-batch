@@ -2,9 +2,9 @@ import { exec } from "child_process";
 import {killAll} from "chrome-launcher"
 import { readFileSync } from "fs";
 import { Logger } from "tslog";
-import BatchController from "./batchController";
-import SiteMetrics from "./siteMetrics";
-import Sites, { Site } from "./siteTracker";
+import BatchController from "./batch-controller";
+import SiteMetrics from "./site-metrics";
+import Sites, { Site } from "./site-tracker";
 import summarizedScores, { diffResults } from "./summary";
 
 const log = new Logger();

@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core'
 import path from 'path';
-import { executeBatch } from '../batchExecutor';
+import { executeBatch } from '../batch-executor';
 
 export default class Batch extends Command {
   static description = 'Run Lighthouse on all passed sites for a given number of times'

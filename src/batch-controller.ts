@@ -1,7 +1,7 @@
-import LightHouseRunner from "./lighthouseRunner";
-import ChromeRunner from "./chromeRunner";
+import LightHouseRunner from "./lighthouse-runner";
+import ChromeRunner from "./chrome-runner";
 import { Logger } from "tslog";
-import Sites, { Site } from "./siteTracker";
+import Sites, { Site } from "./site-tracker";
 import PromisePool from "@supercharge/promise-pool/dist";
 import cliProgress from "cli-progress"
 const multibar = new cliProgress.MultiBar({

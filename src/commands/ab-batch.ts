@@ -1,5 +1,5 @@
 import { Command, Flags } from '@oclif/core'
-import { executeABBatch } from "../batchExecutor"
+import { executeABBatch } from "../batch-executor"
 import path from 'path';
 
 export default class ABBatcher extends Command {

@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import {Logger} from "tslog"
-import { LighthouseReport } from './lighthouseReportAnalyzer';
-import SiteMetrics, { MappedSiteMetric, SiteMetric } from './siteMetrics';
+import { LighthouseReport } from './lighthouse-report-analyzer';
+import SiteMetrics, { MappedSiteMetric, SiteMetric } from './site-metrics';
 
 const log = new Logger();
 
