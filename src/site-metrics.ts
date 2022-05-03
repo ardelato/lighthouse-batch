@@ -4,8 +4,8 @@ const db = new SimplDB.Database({
   collectionsFolder: './tmp/',
   collectionTimestamps: true,
   dataFile: '/tmp/backup.json',
-  tabSize: 2
-});
+  tabSize: 2,
+})
 
 export type MappedSiteMetric = Map<string, {
   'desktop'?: Map<string, number>,
@@ -15,8 +15,8 @@ export type MappedSiteMetric = Map<string, {
 export type SiteMetric = {
   url: string,
   scores: {
-    "desktop": {}
-    "mobile": {}
+    'desktop': Record<string, unknown>
+    'mobile': Record<string, unknown>
   }
 }
 
@@ -25,9 +25,9 @@ export default class SiteMetrics {
 
   public static createOrUpdate(site: SiteMetric) {
     if (SiteMetrics.entryExists(site)) {
-      this.update(site);
+      this.update(site)
     } else {
-      this.create(site);
+      this.create(site)
     }
   }
 
@@ -35,10 +35,13 @@ export default class SiteMetrics {
     this.sitesDB.create(site)
   }
 
-  public static update(site: SiteMetric, ) {
+  public static update(site: SiteMetric) {
     this.sitesDB.update(
-      s => s = { ...s, ...site },
-      s => s.url === site.url
+      s => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        s = {...s, ...site}
+      },
+      s => s.url === site.url,
     )
   }
 
@@ -49,13 +52,14 @@ export default class SiteMetrics {
   public static getSiteScores(url: string): SiteMetric {
     const score = this.sitesDB.get(site => site.url === url)
 
-    if (score instanceof Array) {
+    if (Array.isArray(score)) {
       return score[0]
     }
+
     return score
   }
 
   private static entryExists(site: SiteMetric) {
-    return this.sitesDB.has(s => s.url == site.url)
+    return this.sitesDB.has(s => s.url === site.url)
   }
 }
