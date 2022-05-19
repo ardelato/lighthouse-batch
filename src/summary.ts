@@ -34,9 +34,11 @@ export function diffResults(baselineURL, comparisonURL, pathsFile: string | null
           desktop: diffFormFactorScores(baslineScore.scores.desktop, newScore.scores.desktop),
           mobile: diffFormFactorScores(baslineScore.scores.mobile, newScore.scores.mobile),
         },
+        errors: diffErrors(baslineScore.errors, newScore.errors)
       }
     }
   }
+
 
   const baslineScore = SiteMetrics.getSiteScores(`${baselineURL}/`)
   const newScore = SiteMetrics.getSiteScores(`${comparisonURL}/`)
@@ -68,6 +70,13 @@ function diffFormFactorScores(baselineScores: Record<string, number>, newScores:
   return diffedScores
 }
 
+function diffErrors(baselineErrors: Array<any>, newErrors: Array<any>) {
+  const setErrors = newErrors.filter(error => {
+    return !baselineErrors.filter(x => x.description === error.description).length
+  })
+  return setErrors
+}
+
 function getAllReports() {
   const files = readdirSync(path.resolve('./reports/'))
 
@@ -85,6 +94,7 @@ function getSiteMetrics(reports: LighthouseReport[]) {
       url: report.getURL(),
       formFactor: report.getFormFactor(),
       score: report.getSummarizedScores(),
+      errors: report.getErrors()
     }
   })
 }
@@ -98,17 +108,15 @@ function reduceScores(scores): MappedSiteMetric {
       aggregatedScores(siteScore[score.formFactor], score.score)
     } else if (siteScore) {
       siteScore[score.formFactor] = new Map<string, number>()
-
       aggregatedScores(siteScore[score.formFactor], score.score)
     } else {
       const newScore = {}
       newScore[score.formFactor] = new Map<string, number>()
-
       aggregatedScores(newScore[score.formFactor], score.score)
+      newScore["errors"] = score.errors
       rs.set(score.url, newScore)
     }
   }
-
   return rs
 }
 
@@ -123,6 +131,7 @@ function averageScores(scores: MappedSiteMetric, averageBy: number): MappedSiteM
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const [url, formFactorScores] of scores) {
     const formFactors = Object.keys(formFactorScores)
+    formFactors.pop()
     for (const formFactor of formFactors) {
       averageScoresHelper(formFactorScores[formFactor], averageBy)
     }
@@ -141,9 +150,9 @@ function averageScoresHelper(scores: Map<string, number>, averageBy: number) {
 function transformScoresToSiteMetric(scores: MappedSiteMetric): SiteMetric[] {
   const transformedScores: SiteMetric[] = []
 
-  for (const [url, formFactorScores] of scores) {
-    const desktopEntries = formFactorScores.desktop?.entries()
-    const mobileEntries = formFactorScores.mobile?.entries()
+  for (const [url, score] of scores) {
+    const desktopEntries = score.desktop?.entries()
+    const mobileEntries = score.mobile?.entries()
 
     const newSiteMetric = {
       url: url,
@@ -151,6 +160,7 @@ function transformScoresToSiteMetric(scores: MappedSiteMetric): SiteMetric[] {
         desktop: desktopEntries ? Object.fromEntries(desktopEntries) : {},
         mobile: mobileEntries ? Object.fromEntries(mobileEntries) : {},
       },
+      errors: score.errors ?? []
     }
 
     transformedScores.push(newSiteMetric)

@@ -40,6 +40,8 @@ export async function executeABBatch(options) {
 export async function executeBatch(options) {
   if (options.clean) {
     Sites.clean()
+    SiteMetrics.clean()
+    exec(`rm ${options.output}/*.json`)
   }
 
   if (options.sites) {
