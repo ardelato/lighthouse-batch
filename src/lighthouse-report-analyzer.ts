@@ -26,12 +26,14 @@ const audits = [
 export class LighthouseReport {
   results: Result;
   score: LighthouseMetrics
+  errors: Array<any>
 
   constructor(file: string) {
     const filePath = resolve(file)
     const content = readFileSync(filePath, 'utf8')
     this.results = JSON.parse(content)
     this.score = this.getScores()
+    this.errors = this.parseForConsoleErrors()
   }
 
   getURL(): string {
@@ -44,6 +46,10 @@ export class LighthouseReport {
 
   getScore(): LighthouseMetrics {
     return {...this.score}
+  }
+
+  getErrors(): Array<any> {
+    return this.errors
   }
 
   private getScores(): LighthouseMetrics {
@@ -98,5 +104,22 @@ export class LighthouseReport {
 
   private getAudit(audit: string) {
     return this.results.audits[audit]
+  }
+
+  private parseForConsoleErrors(): Array<any> {
+
+    const errorAudit = this.results.audits['errors-in-console']
+    if (errorAudit.score) {
+      return []
+    }
+    const errors = new Map();
+    if (errorAudit.details?.type === 'table') {
+      errorAudit.details.items.forEach(item => {
+        if (!errors.has(item.description)) {
+          errors.set(item.description,item)
+        }
+      })
+    }
+    return Array.from(errors.values())
   }
 }

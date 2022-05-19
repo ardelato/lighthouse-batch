@@ -9,7 +9,8 @@ const db = new SimplDB.Database({
 
 export type MappedSiteMetric = Map<string, {
   'desktop'?: Map<string, number>,
-  'mobile'?: Map<string, number>
+  'mobile'?: Map<string, number>,
+  'errors'?: Array<any>
 }>
 
 export type SiteMetric = {
@@ -17,7 +18,8 @@ export type SiteMetric = {
   scores: {
     'desktop': Record<string, number>
     'mobile': Record<string, number>
-  }
+  },
+  errors: Array<any>
 }
 
 export default class SiteMetrics {
